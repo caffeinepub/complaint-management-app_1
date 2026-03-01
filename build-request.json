@@ -1,61 +1,68 @@
 {
   "kind": "build_request",
-  "title": "Add App Logo and App Name to Navigation Bar",
-  "projectName": "Complaint Management App",
+  "title": "Add status update with resolution/progress detail notes",
+  "projectName": "PS Sadar Bazar Application Box",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-9",
-      "text": "Generate a professional government/civic services app logo image for the Complaint Management App. The logo should be a clean, formal emblem-style icon suitable for a top navigation bar, rendered in the application's deep teal/slate blue color palette on a transparent background.",
-      "target": "frontend",
+      "id": "REQ-18",
+      "text": "Extend the backend complaint data model to include a `statusLog` array on each complaint record. Each entry in `statusLog` should store: `status` (text: 'Pending', 'In Progress', or 'Resolved'), `updatedAt` (timestamp in nanoseconds), `updatedBy` (text, staff/admin name), and `details` (text, description of progress or resolution). Expose a new backend function `updateComplaintStatus(complaintNumber, newStatus, updatedBy, details)` that appends a new entry to the complaint's `statusLog` and updates the complaint's current `status` field. Update `migration.mo` to add an empty `statusLog` field to all existing complaint records.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-recent"
         ],
         "quotes": [
-          "CAN YOU ADD APP LOGO AND APP NAME"
+          "add status update detail in app",
+          "In Progress और Resolved आप्सन काम कर सके",
+          "allow recording resolution/progress details when a complaint status is changed to 'In Progress' or 'Resolved'"
         ]
       },
       "acceptanceCriteria": [
-        "A logo image file is generated and placed in frontend/public/assets/generated/",
-        "The logo is visually appropriate for a civic/government complaint management context",
-        "The logo uses the application's established teal/slate blue color palette"
+        "The complaint data model includes a `statusLog` array field.",
+        "Each `statusLog` entry has `status`, `updatedAt`, `updatedBy`, and `details` fields.",
+        "`updateComplaintStatus` appends a new log entry and updates the complaint's current status.",
+        "Migration adds an empty `statusLog` array to all pre-existing complaint records.",
+        "Calling `updateComplaintStatus` with status 'In Progress' or 'Resolved' along with detail text persists correctly."
       ]
     },
     {
-      "id": "REQ-10",
-      "text": "Update the Layout.tsx navigation bar to display the generated app logo image alongside the app name 'Complaint Management System' as a branded header unit on the left side of the top navigation bar. The logo image should render at an appropriate small size (e.g., 36x36px) and the app name should appear in a prominent, bold font consistent with the existing government/civic theme. Both the logo and name should together act as a home link navigating to the dashboard.",
+      "id": "REQ-19",
+      "text": "On the Complaint Detail page (admin view only), add an 'Update Status' section. This section should show a form with: a Status dropdown ('Pending', 'In Progress', 'Resolved'), an 'Updated By' text field (staff/admin name), and a 'Details / Remarks' textarea for recording progress or resolution notes. Include an 'Update Status' submit button that calls the `updateComplaintStatus` backend function and refreshes the complaint data. Below the form, display the full `statusLog` history in a table with columns: Status, Updated By, Date & Time, and Details — ordered from newest to oldest. This section should only be visible to admin-role users.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-recent"
         ],
         "quotes": [
-          "CAN YOU ADD APP LOGO AND APP NAME"
+          "add status update detail in app",
+          "In Progress और Resolved आप्सन काम कर सके",
+          "allow recording resolution/progress details when a complaint status is changed to 'In Progress' or 'Resolved'"
         ]
       },
       "acceptanceCriteria": [
-        "The top navigation bar displays the app logo image to the left of the app name text",
-        "The app name 'Complaint Management System' is displayed in bold, styled consistently with the civic theme",
-        "The logo and app name together link to the dashboard (/) route",
-        "The layout remains responsive and the logo/name display correctly on both desktop and mobile viewports",
-        "The existing navigation links (Submit Complaint, Complaints Dashboard, Officers) remain intact and functional"
+        "The 'Update Status' section is visible only to admin-role users on the Complaint Detail page.",
+        "The form includes a Status dropdown with options: Pending, In Progress, Resolved.",
+        "The form includes an 'Updated By' text field and a 'Details / Remarks' textarea.",
+        "Submitting the form calls `updateComplaintStatus` with the correct arguments.",
+        "After a successful update, the complaint's current status badge on the page reflects the new status.",
+        "The status log history table displays all past status entries with Status, Updated By, Date & Time, and Details columns.",
+        "The status log entries are ordered from newest to oldest."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/hooks/ or frontend/src/components/ui/",
-    "Do not alter the existing navigation link structure or routing configuration"
+    "Admin-only: the Update Status form and status log history must not be shown to non-admin (user-role) users.",
+    "Do not modify any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "Preserve all existing complaint fields and backend functions; only extend, do not break existing behavior."
   ],
   "nonGoals": [
-    "Changing the overall color theme or layout of the application",
-    "Adding authentication or login functionality",
-    "Modifying any backend logic"
+    "Sending external SMS/email notifications on status change.",
+    "Allowing regular (non-admin) users to update complaint status.",
+    "Changing the existing attendance recording feature."
   ],
   "imageRequirements": {
-    "required": [
-      "Formal government civic services emblem-style logo mark with a shield or seal motif in deep teal and white with subtle gold accent, transparent background (app-logo.dim_128x128.png)"
-    ],
+    "required": [],
     "edits": []
   }
 }

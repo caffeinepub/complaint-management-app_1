@@ -1,39 +1,30 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add App Logo and App Name to Navigation Bar",
+  "title": "Add status update with resolution/progress detail notes",
   "requirements": [
     {
-      "id": "REQ-9",
-      "summary": "Generate a professional government/civic services app logo image for the navigation bar using the application's teal/slate blue color palette on a transparent background",
+      "id": "REQ-19",
+      "summary": "Add admin-only 'Update Status' section to Complaint Detail page with form for status updates (dropdown, updatedBy field, details textarea) and status log history table displaying past entries ordered newest to oldest",
       "acceptanceCriteria": [
-        "A logo image file is generated and placed in frontend/public/assets/generated/",
-        "The logo is visually appropriate for a civic/government complaint management context",
-        "The logo uses the application's established teal/slate blue color palette"
+        "The 'Update Status' section is visible only to admin-role users on the Complaint Detail page.",
+        "The form includes a Status dropdown with options: Pending, In Progress, Resolved.",
+        "The form includes an 'Updated By' text field and a 'Details / Remarks' textarea.",
+        "Submitting the form calls `updateComplaintStatus` with the correct arguments.",
+        "After a successful update, the complaint's current status badge on the page reflects the new status.",
+        "The status log history table displays all past status entries with Status, Updated By, Date & Time, and Details columns.",
+        "The status log entries are ordered from newest to oldest."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/app-logo.dim_128x128.png",
-          "operation": "create",
-          "description": "Place the generated government/civic services emblem-style logo image (app-logo.dim_128x128.png) into the frontend assets directory. This logo will be used in the navigation bar to brand the Complaint Management System."
-        }
-      ]
-    },
-    {
-      "id": "REQ-10",
-      "summary": "Update the Layout component to display the generated app logo image alongside the app name 'Complaint Management System' as a branded header unit in the top navigation bar, with both acting as a home link to the dashboard",
-      "acceptanceCriteria": [
-        "The top navigation bar displays the app logo image to the left of the app name text",
-        "The app name 'Complaint Management System' is displayed in bold, styled consistently with the civic theme",
-        "The logo and app name together link to the dashboard (/) route",
-        "The layout remains responsive and the logo/name display correctly on both desktop and mobile viewports",
-        "The existing navigation links (Submit Complaint, Complaints Dashboard, Officers) remain intact and functional"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/Layout.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update the navigation bar to include the generated app logo image (frontend/public/assets/generated/app-logo.dim_128x128.png) displayed at 36x36px alongside the app name 'Complaint Management System' in bold text. Wrap both the logo and name in a Link component pointing to the dashboard route (/). Ensure the branding unit appears on the left side of the navigation bar and remains responsive across desktop and mobile viewports. Preserve all existing navigation links and their functionality."
+          "description": "Add a new React Query mutation hook `useUpdateComplaintStatus` that calls `actor.updateComplaintStatus(complaintNumber, newStatus, updatedBy, details)` and invalidates the complaint detail and list queries on success. The hook should accept parameters for complaintNumber, newStatus (ComplaintStatus enum), updatedBy (string), and details (string)."
+        },
+        {
+          "path": "frontend/src/pages/ComplaintDetail.tsx",
+          "operation": "modify",
+          "description": "Add an 'Update Status' section visible only when `isAdmin` is true. Include a form with a Status dropdown (Pending, In Progress, Resolved using ComplaintStatus enum values), an 'Updated By' text input, and a 'Details / Remarks' textarea. Wire the form submission to call `useUpdateComplaintStatus` mutation with the complaint number and form values. Below the form, add a status log history table with columns: Status, Updated By, Date & Time, Details. Map over `complaint.statusLog` in reverse order (newest first) to display each entry. Use the `formatTimestamp` utility from `frontend/src/lib/utils.ts` to display dates. Show loading/error states for the mutation. After successful update, the page should automatically refresh to show the new status badge and updated log."
         }
       ]
     }

@@ -10,12 +10,20 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface AttendanceLog {
+  'attendanceDate' : string,
+  'attendanceTime' : string,
+  'attendedBy' : string,
+  'remarks' : [] | [string],
+}
 export interface Complaint {
   'status' : ComplaintStatus,
   'applicantName' : string,
   'submissionTimestamp' : Time,
   'complaintDetail' : string,
   'mobileNumber' : string,
+  'attendanceLog' : Array<AttendanceLog>,
+  'statusLog' : Array<StatusLogEntry>,
   'notificationLog' : Array<Notification>,
   'complaintNumber' : bigint,
   'attachedFile' : [] | [ExternalBlob],
@@ -34,7 +42,17 @@ export interface Officer {
   'designation' : string,
   'mobileNumber' : string,
 }
+export interface StatusLogEntry {
+  'status' : ComplaintStatus,
+  'updatedAt' : Time,
+  'updatedBy' : string,
+  'details' : string,
+}
 export type Time = bigint;
+export interface UserProfile { 'name' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _CaffeineStorageCreateCertificateResult {
   'method' : string,
   'blob_hash' : string,
@@ -62,14 +80,29 @@ export interface _SERVICE {
     _CaffeineStorageRefillResult
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addOfficer' : ActorMethod<[string, string, string, string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'assignOfficer' : ActorMethod<[bigint, string], undefined>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getComplaint' : ActorMethod<[bigint], Complaint>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
   'listComplaints' : ActorMethod<[[] | [ComplaintStatus]], Array<Complaint>>,
   'listOfficers' : ActorMethod<[], Array<Officer>>,
+  'recordAttendance' : ActorMethod<
+    [bigint, string, string, string, [] | [string]],
+    undefined
+  >,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitComplaint' : ActorMethod<
     [string, string, string, string, string, [] | [ExternalBlob]],
     bigint
+  >,
+  'updateComplaintStatus' : ActorMethod<
+    [bigint, ComplaintStatus, string, string],
+    undefined
   >,
 }
 export declare const idlService: IDL.ServiceClass;

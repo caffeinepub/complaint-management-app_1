@@ -19,12 +19,30 @@ export const _CaffeineStorageRefillResult = IDL.Record({
   'success' : IDL.Opt(IDL.Bool),
   'topped_up_amount' : IDL.Opt(IDL.Nat),
 });
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const ComplaintStatus = IDL.Variant({
   'resolved' : IDL.Null,
   'pending' : IDL.Null,
   'inProgress' : IDL.Null,
 });
 export const Time = IDL.Int;
+export const AttendanceLog = IDL.Record({
+  'attendanceDate' : IDL.Text,
+  'attendanceTime' : IDL.Text,
+  'attendedBy' : IDL.Text,
+  'remarks' : IDL.Opt(IDL.Text),
+});
+export const StatusLogEntry = IDL.Record({
+  'status' : ComplaintStatus,
+  'updatedAt' : Time,
+  'updatedBy' : IDL.Text,
+  'details' : IDL.Text,
+});
 export const Notification = IDL.Record({
   'message' : IDL.Text,
   'timestamp' : Time,
@@ -36,6 +54,8 @@ export const Complaint = IDL.Record({
   'submissionTimestamp' : Time,
   'complaintDetail' : IDL.Text,
   'mobileNumber' : IDL.Text,
+  'attendanceLog' : IDL.Vec(AttendanceLog),
+  'statusLog' : IDL.Vec(StatusLogEntry),
   'notificationLog' : IDL.Vec(Notification),
   'complaintNumber' : IDL.Nat,
   'attachedFile' : IDL.Opt(ExternalBlob),
@@ -77,18 +97,39 @@ export const idlService = IDL.Service({
       [],
     ),
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addOfficer' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'assignOfficer' : IDL.Func([IDL.Nat, IDL.Text], [], []),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getComplaint' : IDL.Func([IDL.Nat], [Complaint], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'listComplaints' : IDL.Func(
       [IDL.Opt(ComplaintStatus)],
       [IDL.Vec(Complaint)],
       ['query'],
     ),
   'listOfficers' : IDL.Func([], [IDL.Vec(Officer)], ['query']),
+  'recordAttendance' : IDL.Func(
+      [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
+      [],
+      [],
+    ),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'submitComplaint' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Opt(ExternalBlob)],
       [IDL.Nat],
+      [],
+    ),
+  'updateComplaintStatus' : IDL.Func(
+      [IDL.Nat, ComplaintStatus, IDL.Text, IDL.Text],
+      [],
       [],
     ),
 });
@@ -107,12 +148,30 @@ export const idlFactory = ({ IDL }) => {
     'success' : IDL.Opt(IDL.Bool),
     'topped_up_amount' : IDL.Opt(IDL.Nat),
   });
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
   const ComplaintStatus = IDL.Variant({
     'resolved' : IDL.Null,
     'pending' : IDL.Null,
     'inProgress' : IDL.Null,
   });
   const Time = IDL.Int;
+  const AttendanceLog = IDL.Record({
+    'attendanceDate' : IDL.Text,
+    'attendanceTime' : IDL.Text,
+    'attendedBy' : IDL.Text,
+    'remarks' : IDL.Opt(IDL.Text),
+  });
+  const StatusLogEntry = IDL.Record({
+    'status' : ComplaintStatus,
+    'updatedAt' : Time,
+    'updatedBy' : IDL.Text,
+    'details' : IDL.Text,
+  });
   const Notification = IDL.Record({ 'message' : IDL.Text, 'timestamp' : Time });
   const ExternalBlob = IDL.Vec(IDL.Nat8);
   const Complaint = IDL.Record({
@@ -121,6 +180,8 @@ export const idlFactory = ({ IDL }) => {
     'submissionTimestamp' : Time,
     'complaintDetail' : IDL.Text,
     'mobileNumber' : IDL.Text,
+    'attendanceLog' : IDL.Vec(AttendanceLog),
+    'statusLog' : IDL.Vec(StatusLogEntry),
     'notificationLog' : IDL.Vec(Notification),
     'complaintNumber' : IDL.Nat,
     'attachedFile' : IDL.Opt(ExternalBlob),
@@ -162,15 +223,31 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addOfficer' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'assignOfficer' : IDL.Func([IDL.Nat, IDL.Text], [], []),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getComplaint' : IDL.Func([IDL.Nat], [Complaint], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'listComplaints' : IDL.Func(
         [IDL.Opt(ComplaintStatus)],
         [IDL.Vec(Complaint)],
         ['query'],
       ),
     'listOfficers' : IDL.Func([], [IDL.Vec(Officer)], ['query']),
+    'recordAttendance' : IDL.Func(
+        [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
+        [],
+        [],
+      ),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'submitComplaint' : IDL.Func(
         [
           IDL.Text,
@@ -181,6 +258,11 @@ export const idlFactory = ({ IDL }) => {
           IDL.Opt(ExternalBlob),
         ],
         [IDL.Nat],
+        [],
+      ),
+    'updateComplaintStatus' : IDL.Func(
+        [IDL.Nat, ComplaintStatus, IDL.Text, IDL.Text],
+        [],
         [],
       ),
   });

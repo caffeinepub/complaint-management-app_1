@@ -8,7 +8,7 @@
   :root {
     --radius: 0.5rem;
 
-    /* Government/Civic Services Palette - Deep Teal */
+    /* Government/Civic Services Palette - Deep Navy Blue (UP Police) */
     --background: 0.97 0.005 220;
     --foreground: 0.18 0.02 240;
 
@@ -18,7 +18,7 @@
     --popover: 1 0 0;
     --popover-foreground: 0.18 0.02 240;
 
-    --primary: 0.38 0.09 210;
+    --primary: 0.35 0.10 240;
     --primary-foreground: 0.98 0 0;
 
     --secondary: 0.93 0.015 220;
@@ -35,7 +35,7 @@
 
     --border: 0.88 0.015 220;
     --input: 0.88 0.015 220;
-    --ring: 0.38 0.09 210;
+    --ring: 0.35 0.10 240;
 
     --success: 0.55 0.14 155;
     --success-foreground: 0.98 0 0;
@@ -43,8 +43,11 @@
     --warning: 0.72 0.16 65;
     --warning-foreground: 0.18 0.02 240;
 
-    --nav-bg: 0.28 0.07 215;
+    /* UP Police Navy */
+    --nav-bg: 0.22 0.08 250;
     --nav-foreground: 0.97 0.005 220;
+
+    --login-bg: 0.95 0.01 230;
 
     --chart-1: 0.646 0.222 41.116;
     --chart-2: 0.6 0.118 184.704;
@@ -72,7 +75,7 @@
     --popover: 0.22 0.03 230;
     --popover-foreground: 0.95 0.005 220;
 
-    --primary: 0.62 0.12 210;
+    --primary: 0.62 0.12 240;
     --primary-foreground: 0.12 0.02 230;
 
     --secondary: 0.25 0.03 230;
@@ -89,7 +92,7 @@
 
     --border: 1 0 0 / 10%;
     --input: 1 0 0 / 15%;
-    --ring: 0.62 0.12 210;
+    --ring: 0.62 0.12 240;
 
     --success: 0.6 0.14 155;
     --success-foreground: 0.12 0.02 230;
@@ -97,8 +100,10 @@
     --warning: 0.75 0.16 65;
     --warning-foreground: 0.12 0.02 230;
 
-    --nav-bg: 0.18 0.04 225;
+    --nav-bg: 0.16 0.06 250;
     --nav-foreground: 0.95 0.005 220;
+
+    --login-bg: 0.14 0.02 230;
 
     --sidebar: 0.205 0 0;
     --sidebar-foreground: 0.985 0 0;
@@ -133,6 +138,9 @@
   .nav-bg {
     background-color: oklch(var(--nav-bg));
     color: oklch(var(--nav-foreground));
+  }
+  .bg-login-bg {
+    background-color: oklch(var(--login-bg));
   }
   .text-success {
     color: oklch(var(--success));

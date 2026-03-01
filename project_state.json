@@ -1,14 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
-  "summary": "Complaint Management App that stores applicant details (name, father name, address, mobile no, complaint detail), allows appointing an officer to handle the complaint, supports attaching PDF/JPG files, auto-generates a complaint number, and sends notifications to both the applicant and assigned officer.",
+  "projectStateVersion": 9,
+  "summary": "Complaint Management App branded as 'PS Sadar Bazar Application Box' with UP Police logo. Features: user and admin login (ID/password), bilingual data entry (English/Hindi) for applicant name, father name, address, mobile no, complaint detail, appoint officer to attend complaint, attach PDF/JPG file, auto-generate complaint number, send message to applicant and assigned officer, record who attended with date/time, and generate a receiving PDF with complaint number and details.",
   "architectural_notes": [
     "File uploads (PDF/JPG) require server-side storage; use cloud storage (e.g., Firebase Storage or S3) or local disk storage",
-    "Messaging/notification system needed for SMS or in-app alerts to applicant and officer"
+    "Messaging/notification system needed for SMS or in-app alerts to applicant and officer",
+    "Bilingual support (English/Hindi) requires i18n handling or dual-language form fields",
+    "PDF generation needed for complaint receiving slip; use a library like pdfmake or jsPDF",
+    "Role-based authentication required: separate User and Admin login flows with ID/password"
   ],
   "known_issues": [],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Formal government civic services emblem-style logo mark with a shield or seal motif in deep teal and white with subtle gold accent, transparent background (app-logo.dim_128x128.png)",
   "existing_features": [
     {
       "id": "feature-build-a-complaint-submission-form-page-with-fields-for-applicant-name-father-name-address-mobile-number-complaint-detail-textarea-and-a-file-upload-input-accepting-pdf-and-jpg-files-only-on-submission-call-the-submitcomplaint-backend-function-and-display-the-generated-complaint-number-prominently-in-a-confirmation-message",
@@ -63,6 +65,54 @@
       "title": "Update the Layout.tsx navigation bar to display the generated app logo image alongside the app name 'Complaint Management System' as a branded header unit on the left side of the top navigation bar. The logo image should render at an appropriate small size (e.g., 36x36px) and the app name should appear in a prominent, bold font consistent with the existing government/civic theme. Both the logo and name should together act as a home link navigating to the dashboard.",
       "reqIds": [
         "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-login-page-at-route-login-with-fields-for-login-id-and-password-a-submit-button-and-the-ps-sadar-bazar-application-box-branding-with-the-up-police-logo-on-successful-login-redirect-admin-users-to-the-complaints-dashboard-and-regular-users-to-the-submit-complaint-page-store-the-session-token-and-role-in-localstorage-all-other-routes-should-redirect-to-login-if-no-valid-session-exists-show-a-logout-button-in-the-top-navigation-bar-when-logged-in",
+      "title": "Build a Login Page at route '/login' with fields for Login ID and Password, a submit button, and the PS Sadar Bazar Application Box branding with the UP Police logo. On successful login, redirect admin users to the Complaints Dashboard and regular users to the Submit Complaint page. Store the session token and role in localStorage. All other routes should redirect to '/login' if no valid session exists. Show a logout button in the top navigation bar when logged in.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-bilingual-english-hindi-support-to-the-complaint-submission-form-add-a-language-toggle-english-at-the-top-of-the-submitcomplaint-page-when-hindi-is-selected-all-form-labels-placeholders-button-text-and-confirmation-messages-should-display-in-hindi-when-english-is-selected-they-display-in-english-both-languages-must-cover-applicant-name-father-name-address-mobile-number-complaint-detail-file-upload-label-and-submit-button",
+      "title": "Add bilingual (English/Hindi) support to the complaint submission form. Add a language toggle (English / हिंदी) at the top of the SubmitComplaint page. When Hindi is selected, all form labels, placeholders, button text, and confirmation messages should display in Hindi. When English is selected, they display in English. Both languages must cover: Applicant Name (आवेदक का नाम), Father Name (पिता का नाम), Address (पता), Mobile Number (मोबाइल नंबर), Complaint Detail (शिकायत विवरण), file upload label, and submit button.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-attendance-section-to-the-complaint-detail-page-display-all-existing-attendancelog-entries-for-the-complaint-in-a-table-with-columns-attended-by-date-time-remarks-below-the-table-show-a-form-with-fields-attended-by-text-date-date-picker-time-time-picker-remarks-optional-textarea-and-a-record-attendance-button-on-submission-call-the-recordattendance-backend-function-and-refresh-the-attendance-log-this-section-should-only-be-visible-to-admin-role-users",
+      "title": "Add an Attendance section to the Complaint Detail page. Display all existing attendanceLog entries for the complaint in a table with columns: Attended By, Date, Time, Remarks. Below the table, show a form with fields: Attended By (text), Date (date picker), Time (time picker), Remarks (optional textarea), and a 'Record Attendance' button. On submission, call the recordAttendance backend function and refresh the attendance log. This section should only be visible to admin-role users.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-client-side-pdf-generation-on-the-complaint-detail-page-add-a-download-receiving-pdf-button-that-when-clicked-generates-a-formatted-pdf-document-using-a-browser-side-pdf-library-e-g-jspdf-the-pdf-must-include-the-up-police-logo-the-heading-ps-sadar-bazar-application-box-the-complaint-number-prominently-displayed-applicant-name-father-name-address-mobile-number-complaint-detail-assigned-officer-name-submission-date-and-current-status-the-pdf-filename-should-be-complaint-complaintnumber-pdf",
+      "title": "Implement client-side PDF generation on the Complaint Detail page. Add a 'Download Receiving PDF' button that, when clicked, generates a formatted PDF document using a browser-side PDF library (e.g., jsPDF). The PDF must include: the UP Police logo, the heading 'PS Sadar Bazar Application Box', the complaint number prominently displayed, applicant name, father name, address, mobile number, complaint detail, assigned officer name, submission date, and current status. The PDF filename should be 'complaint-{complaintNumber}.pdf'.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-layout-tsx-navigation-bar-and-the-overall-app-branding-to-display-ps-sadar-bazar-application-box-as-the-app-name-and-the-up-police-logo-image-frontend-public-assets-generated-up-police-logo-dim-128x128-png-at-36x36px-the-nav-bar-should-only-show-navigation-links-submit-complaint-complaints-dashboard-officers-when-the-user-is-logged-in-show-the-logged-in-user-s-role-admin-user-as-a-badge-next-to-the-logout-button",
+      "title": "Update the Layout.tsx navigation bar and the overall app branding to display 'PS Sadar Bazar Application Box' as the app name and the UP Police logo image (frontend/public/assets/generated/up-police-logo.dim_128x128.png) at 36x36px. The nav bar should only show navigation links (Submit Complaint, Complaints Dashboard, Officers) when the user is logged in. Show the logged-in user's role (Admin/User) as a badge next to the logout button.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-complaint-detail-page-admin-view-only-add-an-update-status-section-this-section-should-show-a-form-with-a-status-dropdown-pending-in-progress-resolved-an-updated-by-text-field-staff-admin-name-and-a-details-remarks-textarea-for-recording-progress-or-resolution-notes-include-an-update-status-submit-button-that-calls-the-updatecomplaintstatus-backend-function-and-refreshes-the-complaint-data-below-the-form-display-the-full-statuslog-history-in-a-table-with-columns-status-updated-by-date-time-and-details-ordered-from-newest-to-oldest-this-section-should-only-be-visible-to-admin-role-users",
+      "title": "On the Complaint Detail page (admin view only), add an 'Update Status' section. This section should show a form with: a Status dropdown ('Pending', 'In Progress', 'Resolved'), an 'Updated By' text field (staff/admin name), and a 'Details / Remarks' textarea for recording progress or resolution notes. Include an 'Update Status' submit button that calls the `updateComplaintStatus` backend function and refreshes the complaint data. Below the form, display the full `statusLog` history in a table with columns: Status, Updated By, Date & Time, and Details — ordered from newest to oldest. This section should only be visible to admin-role users.",
+      "reqIds": [
+        "REQ-19"
       ],
       "version": 1
     }
@@ -127,10 +177,70 @@
       "summary": "Add app logo and app name display to the application (e.g., in the top navigation bar)",
       "reqIds": [],
       "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Add login system with separate User and Admin roles, each requiring ID and password to access the app",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Support bilingual data entry (English and Hindi) for applicant details and complaint forms",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Record who attended to the applicant along with the date and time of attendance",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Generate a receiving PDF document containing the complaint number and full complaint details for the applicant",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Brand the app with the name 'PS Sadar Bazar Application Box' and add the UP Police logo",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Implement a backend authentication system with two hardcoded roles: 'admin' (full access) and 'user' (can submit complaints and view own status). Store credentials as ID + hashed password pairs in stable backend state. Expose backend functions: login(id, password) returning a session token and role, and validateSession(token) returning the current role. Provide at least one default admin account (id: 'admin', password: 'admin123') and one default user account (id: 'user', password: 'user123').",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Add an 'Attendance Record' feature to the backend complaint data model. Extend the complaint record with an attendanceLog array, where each entry stores: attendedBy (officer name or staff name as text), attendanceDate (date as text), attendanceTime (time as text), and remarks (optional text). Expose a backend function recordAttendance(complaintNumber, attendedBy, date, time, remarks) that appends a new entry to the complaint's attendanceLog.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-19",
+      "summary": "Add status update functionality: allow recording resolution/progress details when a complaint status is changed to 'In Progress' or 'Resolved', so that status transitions are tracked with detail notes",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Extend the backend complaint data model to include a `statusLog` array on each complaint record. Each entry in `statusLog` should store: `status` (text: 'Pending', 'In Progress', or 'Resolved'), `updatedAt` (timestamp in nanoseconds), `updatedBy` (text, staff/admin name), and `details` (text, description of progress or resolution). Expose a new backend function `updateComplaintStatus(complaintNumber, newStatus, updatedBy, details)` that appends a new entry to the complaint's `statusLog` and updates the complaint's current `status` field. Update `migration.mo` to add an empty `statusLog` field to all existing complaint records.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Complaint Management App",
+  "projectName": "PS Sadar Bazar Application Box",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

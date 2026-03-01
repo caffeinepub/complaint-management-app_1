@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { ExternalBlob } from '../backend';
 import { useSubmitComplaint } from '../hooks/useQueries';
 import { formatComplaintNumber } from '../lib/utils';
+import { translations, Language } from '../lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,8 +22,10 @@ import {
   ClipboardList,
   Paperclip,
   LayoutDashboard,
+  Languages,
 } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { useAuth } from '@/hooks/useAuth';
 
 interface FormData {
   applicantName: string;
@@ -41,6 +44,7 @@ const initialForm: FormData = {
 };
 
 export default function SubmitComplaint() {
+  const [lang, setLang] = useState<Language>('en');
   const [form, setForm] = useState<FormData>(initialForm);
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -48,20 +52,23 @@ export default function SubmitComplaint() {
   const [successComplaintNumber, setSuccessComplaintNumber] = useState<bigint | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { session } = useAuth();
   const submitMutation = useSubmitComplaint();
+  const t = translations[lang];
 
   const validate = (): boolean => {
     const newErrors: Partial<FormData> = {};
-    if (!form.applicantName.trim()) newErrors.applicantName = 'Applicant name is required';
-    if (!form.fatherName.trim()) newErrors.fatherName = "Father's name is required";
-    if (!form.address.trim()) newErrors.address = 'Address is required';
+    if (!form.applicantName.trim()) newErrors.applicantName = t.errors.applicantName;
+    if (!form.fatherName.trim()) newErrors.fatherName = t.errors.fatherName;
+    if (!form.address.trim()) newErrors.address = t.errors.address;
     if (!form.mobileNumber.trim()) {
-      newErrors.mobileNumber = 'Mobile number is required';
+      newErrors.mobileNumber = t.errors.mobileNumber;
     } else if (!/^\d{10,15}$/.test(form.mobileNumber.replace(/[\s\-+]/g, ''))) {
-      newErrors.mobileNumber = 'Enter a valid mobile number';
+      newErrors.mobileNumber = t.errors.mobileNumberInvalid;
     }
-    if (!form.complaintDetail.trim()) newErrors.complaintDetail = 'Complaint detail is required';
-    else if (form.complaintDetail.trim().length < 20) newErrors.complaintDetail = 'Please provide more detail (at least 20 characters)';
+    if (!form.complaintDetail.trim()) newErrors.complaintDetail = t.errors.complaintDetail;
+    else if (form.complaintDetail.trim().length < 20)
+      newErrors.complaintDetail = t.errors.complaintDetailShort;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -115,9 +122,9 @@ export default function SubmitComplaint() {
       setSelectedFile(null);
       setUploadProgress(0);
       if (fileInputRef.current) fileInputRef.current.value = '';
-      toast.success('Complaint submitted successfully!');
+      toast.success(lang === 'en' ? 'Complaint submitted successfully!' : 'शिकायत सफलतापूर्वक दर्ज की गई!');
     } catch (err) {
-      toast.error('Failed to submit complaint. Please try again.');
+      toast.error(lang === 'en' ? 'Failed to submit complaint. Please try again.' : 'शिकायत दर्ज करने में विफल। कृपया पुनः प्रयास करें।');
       console.error(err);
     }
   };
@@ -133,14 +140,12 @@ export default function SubmitComplaint() {
               </div>
             </div>
             <h2 className="text-2xl font-serif font-bold text-foreground mb-2">
-              Complaint Submitted Successfully
+              {t.successTitle}
             </h2>
-            <p className="text-muted-foreground mb-6">
-              Your complaint has been registered. Please save your complaint number for future reference.
-            </p>
+            <p className="text-muted-foreground mb-6">{t.successSubtitle}</p>
             <div className="bg-primary/5 border border-primary/20 rounded-lg p-6 mb-8 inline-block w-full">
               <p className="text-sm text-muted-foreground mb-1 uppercase tracking-wider font-medium">
-                Your Complaint Number
+                {t.complaintNumberLabel}
               </p>
               <p className="text-3xl font-bold text-primary font-mono tracking-widest">
                 {formatComplaintNumber(successComplaintNumber)}
@@ -151,24 +156,21 @@ export default function SubmitComplaint() {
             </div>
             <Alert className="text-left mb-6 bg-accent/50">
               <CheckCircle2 size={16} className="text-success" />
-              <AlertTitle>Notification Sent</AlertTitle>
-              <AlertDescription>
-                A confirmation message has been recorded in the system. An officer will be assigned to your complaint shortly.
-              </AlertDescription>
+              <AlertTitle>{t.notificationSent}</AlertTitle>
+              <AlertDescription>{t.notificationDetail}</AlertDescription>
             </Alert>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button
-                variant="outline"
-                onClick={() => setSuccessComplaintNumber(null)}
-              >
-                Submit Another Complaint
+              <Button variant="outline" onClick={() => setSuccessComplaintNumber(null)}>
+                {t.submitAnother}
               </Button>
-              <Link to="/dashboard">
-                <Button className="w-full sm:w-auto">
-                  <LayoutDashboard size={16} className="mr-2" />
-                  View All Complaints
-                </Button>
-              </Link>
+              {session?.role === 'admin' && (
+                <Link to="/dashboard">
+                  <Button className="w-full sm:w-auto">
+                    <LayoutDashboard size={16} className="mr-2" />
+                    {t.viewAll}
+                  </Button>
+                </Link>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -179,71 +181,87 @@ export default function SubmitComplaint() {
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
       {/* Page Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="flex items-start justify-between mb-6 gap-4">
+        <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
             <ClipboardList size={20} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-serif font-bold text-foreground">Submit a Complaint</h1>
-            <p className="text-muted-foreground text-sm">Fill in the details below to register your complaint</p>
+            <h1 className="text-2xl font-serif font-bold text-foreground">{t.pageTitle}</h1>
+            <p className="text-muted-foreground text-sm">{t.pageSubtitle}</p>
           </div>
         </div>
+        {/* Language Toggle */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setLang(lang === 'en' ? 'hi' : 'en')}
+          className="flex-shrink-0 gap-1.5"
+        >
+          <Languages size={14} />
+          {t.langToggle}
+        </Button>
       </div>
 
-      <form onSubmit={handleSubmit} noValidate>
-        {/* Applicant Information */}
-        <Card className="shadow-card mb-6">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base flex items-center gap-2">
-              <User size={16} className="text-primary" />
-              Applicant Information
-            </CardTitle>
-            <CardDescription>Personal details of the complainant</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="applicantName">
-                  Applicant Name <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="applicantName"
-                  placeholder="Enter full name"
-                  value={form.applicantName}
-                  onChange={(e) => handleChange('applicantName', e.target.value)}
-                  className={errors.applicantName ? 'border-destructive' : ''}
-                />
-                {errors.applicantName && (
-                  <p className="text-xs text-destructive">{errors.applicantName}</p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="fatherName">
-                  Father's Name <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="fatherName"
-                  placeholder="Enter father's name"
-                  value={form.fatherName}
-                  onChange={(e) => handleChange('fatherName', e.target.value)}
-                  className={errors.fatherName ? 'border-destructive' : ''}
-                />
-                {errors.fatherName && (
-                  <p className="text-xs text-destructive">{errors.fatherName}</p>
-                )}
-              </div>
+      <Card className="shadow-card">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base flex items-center gap-2">
+            <FileText size={16} className="text-primary" />
+            {lang === 'en' ? 'Complaint Form' : 'शिकायत प्रपत्र'}
+          </CardTitle>
+          <CardDescription>
+            {lang === 'en'
+              ? 'All fields marked are required. Please fill in accurate information.'
+              : 'सभी चिह्नित फ़ील्ड आवश्यक हैं। कृपया सटीक जानकारी भरें।'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Applicant Name */}
+            <div className="space-y-1.5">
+              <Label htmlFor="applicantName" className="flex items-center gap-1.5 text-sm font-medium">
+                <User size={13} className="text-muted-foreground" />
+                {t.applicantName} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="applicantName"
+                placeholder={t.applicantNamePlaceholder}
+                value={form.applicantName}
+                onChange={(e) => handleChange('applicantName', e.target.value)}
+                className={errors.applicantName ? 'border-destructive' : ''}
+              />
+              {errors.applicantName && (
+                <p className="text-xs text-destructive">{errors.applicantName}</p>
+              )}
             </div>
 
+            {/* Father's Name */}
             <div className="space-y-1.5">
-              <Label htmlFor="address">
-                <MapPin size={13} className="inline mr-1 text-muted-foreground" />
-                Address <span className="text-destructive">*</span>
+              <Label htmlFor="fatherName" className="flex items-center gap-1.5 text-sm font-medium">
+                <User size={13} className="text-muted-foreground" />
+                {t.fatherName} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="fatherName"
+                placeholder={t.fatherNamePlaceholder}
+                value={form.fatherName}
+                onChange={(e) => handleChange('fatherName', e.target.value)}
+                className={errors.fatherName ? 'border-destructive' : ''}
+              />
+              {errors.fatherName && (
+                <p className="text-xs text-destructive">{errors.fatherName}</p>
+              )}
+            </div>
+
+            {/* Address */}
+            <div className="space-y-1.5">
+              <Label htmlFor="address" className="flex items-center gap-1.5 text-sm font-medium">
+                <MapPin size={13} className="text-muted-foreground" />
+                {t.address} <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="address"
-                placeholder="Enter complete address"
+                placeholder={t.addressPlaceholder}
                 value={form.address}
                 onChange={(e) => handleChange('address', e.target.value)}
                 rows={2}
@@ -254,15 +272,16 @@ export default function SubmitComplaint() {
               )}
             </div>
 
+            {/* Mobile Number */}
             <div className="space-y-1.5">
-              <Label htmlFor="mobileNumber">
-                <Phone size={13} className="inline mr-1 text-muted-foreground" />
-                Mobile Number <span className="text-destructive">*</span>
+              <Label htmlFor="mobileNumber" className="flex items-center gap-1.5 text-sm font-medium">
+                <Phone size={13} className="text-muted-foreground" />
+                {t.mobileNumber} <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="mobileNumber"
                 type="tel"
-                placeholder="e.g. 9876543210"
+                placeholder={t.mobileNumberPlaceholder}
                 value={form.mobileNumber}
                 onChange={(e) => handleChange('mobileNumber', e.target.value)}
                 className={errors.mobileNumber ? 'border-destructive' : ''}
@@ -271,26 +290,16 @@ export default function SubmitComplaint() {
                 <p className="text-xs text-destructive">{errors.mobileNumber}</p>
               )}
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Complaint Details */}
-        <Card className="shadow-card mb-6">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base flex items-center gap-2">
-              <FileText size={16} className="text-primary" />
-              Complaint Details
-            </CardTitle>
-            <CardDescription>Describe your complaint in detail</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            {/* Complaint Detail */}
             <div className="space-y-1.5">
-              <Label htmlFor="complaintDetail">
-                Complaint Description <span className="text-destructive">*</span>
+              <Label htmlFor="complaintDetail" className="flex items-center gap-1.5 text-sm font-medium">
+                <ClipboardList size={13} className="text-muted-foreground" />
+                {t.complaintDetail} <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="complaintDetail"
-                placeholder="Describe your complaint in detail (minimum 20 characters)..."
+                placeholder={t.complaintDetailPlaceholder}
                 value={form.complaintDetail}
                 onChange={(e) => handleChange('complaintDetail', e.target.value)}
                 rows={5}
@@ -303,109 +312,81 @@ export default function SubmitComplaint() {
                   <span />
                 )}
                 <p className="text-xs text-muted-foreground ml-auto">
-                  {form.complaintDetail.length} characters
+                  {form.complaintDetail.length} {lang === 'en' ? 'chars' : 'अक्षर'}
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* File Attachment */}
-        <Card className="shadow-card mb-6">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Paperclip size={16} className="text-primary" />
-              Attach Supporting Document
-            </CardTitle>
-            <CardDescription>Optional: Attach a PDF or JPG file (max 10MB)</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {!selectedFile ? (
-              <div
-                className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-accent/30 transition-all"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload size={32} className="mx-auto mb-3 text-muted-foreground" />
-                <p className="text-sm font-medium text-foreground mb-1">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-xs text-muted-foreground">PDF or JPG files only (max 10MB)</p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,application/pdf,image/jpeg"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 p-4 bg-accent/40 rounded-lg border border-border">
-                <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  {selectedFile.type === 'application/pdf' ? (
-                    <FileText size={20} className="text-primary" />
-                  ) : (
-                    <Paperclip size={20} className="text-primary" />
-                  )}
+            {/* File Upload */}
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-1.5 text-sm font-medium">
+                <Paperclip size={13} className="text-muted-foreground" />
+                {t.attachFile}
+              </Label>
+              {!selectedFile ? (
+                <div
+                  className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload size={24} className="mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">{t.attachFileHint}</p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{selectedFile.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {(selectedFile.size / 1024).toFixed(1)} KB &bull;{' '}
-                    {selectedFile.type === 'application/pdf' ? 'PDF Document' : 'JPEG Image'}
-                  </p>
-                  {submitMutation.isPending && uploadProgress > 0 && (
-                    <div className="mt-2">
-                      <div className="h-1.5 bg-border rounded-full overflow-hidden">
+              ) : (
+                <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <FileText size={20} className="text-primary flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{selectedFile.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {(selectedFile.size / 1024).toFixed(1)} KB
+                    </p>
+                    {uploadProgress > 0 && uploadProgress < 100 && (
+                      <div className="mt-1 h-1.5 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-primary rounded-full transition-all"
+                          className="h-full bg-primary transition-all"
                           style={{ width: `${uploadProgress}%` }}
                         />
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">{uploadProgress}% uploaded</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveFile}
+                    className="p-1 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleRemoveFile}
-                  className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              )}
+            </div>
 
-        {/* Submit */}
-        <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              setForm(initialForm);
-              setErrors({});
-              setSelectedFile(null);
-            }}
-            disabled={submitMutation.isPending}
-          >
-            Reset Form
-          </Button>
-          <Button type="submit" disabled={submitMutation.isPending} className="min-w-[160px]">
-            {submitMutation.isPending ? (
-              <>
-                <Loader2 size={16} className="animate-spin mr-2" />
-                Submitting...
-              </>
-            ) : (
-              <>
-                <ClipboardList size={16} className="mr-2" />
-                Submit Complaint
-              </>
-            )}
-          </Button>
-        </div>
-      </form>
+            {/* Submit */}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={submitMutation.isPending}
+            >
+              {submitMutation.isPending ? (
+                <>
+                  <Loader2 size={16} className="animate-spin mr-2" />
+                  {t.submitting}
+                </>
+              ) : (
+                <>
+                  <Upload size={16} className="mr-2" />
+                  {t.submitButton}
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

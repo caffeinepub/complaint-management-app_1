@@ -109,3 +109,61 @@ export function useAddOfficer() {
     },
   });
 }
+
+// ─── Attendance ───────────────────────────────────────────────────────────────
+
+export function useRecordAttendance() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      complaintNumber: bigint;
+      attendedBy: string;
+      attendanceDate: string;
+      attendanceTime: string;
+      remarks: string | null;
+    }) => {
+      if (!actor) throw new Error('Actor not initialized');
+      return actor.recordAttendance(
+        data.complaintNumber,
+        data.attendedBy,
+        data.attendanceDate,
+        data.attendanceTime,
+        data.remarks
+      );
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['complaint', variables.complaintNumber.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['complaints'] });
+    },
+  });
+}
+
+// ─── Status Update ────────────────────────────────────────────────────────────
+
+export function useUpdateComplaintStatus() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      complaintNumber: bigint;
+      newStatus: ComplaintStatus;
+      updatedBy: string;
+      details: string;
+    }) => {
+      if (!actor) throw new Error('Actor not initialized');
+      return actor.updateComplaintStatus(
+        data.complaintNumber,
+        data.newStatus,
+        data.updatedBy,
+        data.details
+      );
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['complaint', variables.complaintNumber.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['complaints'] });
+    },
+  });
+}

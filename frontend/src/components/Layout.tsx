@@ -1,25 +1,43 @@
-import { ReactNode } from 'react';
-import { Link, useRouterState } from '@tanstack/react-router';
-import { FileText, LayoutDashboard, Users, Menu, X, Shield } from 'lucide-react';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
+import { Link, useRouterState, useNavigate } from '@tanstack/react-router';
+import { FileText, LayoutDashboard, Users, Menu, X, Shield, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
-const navLinks = [
+const adminNavLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/submit-complaint', label: 'Submit Complaint', icon: FileText },
   { to: '/officers', label: 'Officers', icon: Users },
+];
+
+const userNavLinks = [
+  { to: '/submit-complaint', label: 'Submit Complaint', icon: FileText },
 ];
 
 export default function Layout({ children }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
+  const { session, logout } = useAuth();
+  const navigate = useNavigate();
 
-  const appId = typeof window !== 'undefined' ? encodeURIComponent(window.location.hostname) : 'complaint-management-app';
+  const navLinks = session?.role === 'admin' ? adminNavLinks : userNavLinks;
+
+  const appId =
+    typeof window !== 'undefined'
+      ? encodeURIComponent(window.location.hostname)
+      : 'ps-sadar-bazar';
+
+  const handleLogout = () => {
+    logout();
+    navigate({ to: '/login' });
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -28,50 +46,81 @@ export default function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo & Brand */}
-            <Link to="/dashboard" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/15 flex items-center justify-center flex-shrink-0 border border-white/20 shadow-sm">
+            <Link
+              to={session?.role === 'admin' ? '/dashboard' : '/submit-complaint'}
+              className="flex items-center gap-3 group"
+            >
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-white/15 flex items-center justify-center flex-shrink-0 border border-white/30 shadow-sm">
                 <img
-                  src="/assets/generated/app-logo.dim_128x128.png"
-                  alt="Complaint Management System Logo"
-                  className="w-8 h-8 object-contain"
+                  src="/assets/generated/up-police-logo.dim_128x128.png"
+                  alt="UP Police Logo"
+                  className="w-9 h-9 object-contain"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const parent = e.currentTarget.parentElement;
                     if (parent) {
-                      parent.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+                      parent.innerHTML =
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
                     }
                   }}
                 />
               </div>
               <div className="hidden sm:block">
-                <p className="text-nav-foreground font-serif font-bold text-base leading-tight tracking-tight">
-                  Complaint Management System
+                <p className="text-nav-foreground font-serif font-bold text-sm leading-tight tracking-tight">
+                  PS Sadar Bazar
                 </p>
-                <p className="text-nav-foreground/65 text-xs tracking-wide">Civic Services Portal</p>
+                <p className="text-nav-foreground/65 text-xs tracking-wide">Application Box · UP Police</p>
               </div>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              {navLinks.map(({ to, label, icon: Icon }) => {
-                const isActive = currentPath === to || currentPath.startsWith(to + '/');
-                return (
-                  <Link
-                    key={to}
-                    to={to}
-                    className={cn(
-                      'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-150',
-                      isActive
-                        ? 'bg-white/20 text-white'
-                        : 'text-white/80 hover:bg-white/10 hover:text-white'
-                    )}
+            {session && (
+              <nav className="hidden md:flex items-center gap-1">
+                {navLinks.map(({ to, label, icon: Icon }) => {
+                  const isActive =
+                    currentPath === to || currentPath.startsWith(to + '/');
+                  return (
+                    <Link
+                      key={to}
+                      to={to}
+                      className={cn(
+                        'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-150',
+                        isActive
+                          ? 'bg-white/20 text-white'
+                          : 'text-white/80 hover:bg-white/10 hover:text-white'
+                      )}
+                    >
+                      <Icon size={16} />
+                      {label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
+
+            {/* Right side: role badge + logout */}
+            <div className="hidden md:flex items-center gap-2">
+              {session && (
+                <>
+                  <Badge
+                    variant="outline"
+                    className="border-white/30 text-white/90 bg-white/10 text-xs"
                   >
-                    <Icon size={16} />
-                    {label}
-                  </Link>
-                );
-              })}
-            </nav>
+                    {session.role === 'admin' ? '🛡 Admin' : '👤 User'}
+                  </Badge>
+                  <span className="text-white/60 text-xs hidden lg:block">{session.name}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="text-white/80 hover:text-white hover:bg-white/10 gap-1.5 h-8"
+                  >
+                    <LogOut size={14} />
+                    Logout
+                  </Button>
+                </>
+              )}
+            </div>
 
             {/* Mobile menu button */}
             <button
@@ -90,36 +139,58 @@ export default function Layout({ children }: LayoutProps) {
             {/* Mobile brand name */}
             <div className="px-4 pt-3 pb-1 flex items-center gap-2">
               <img
-                src="/assets/generated/app-logo.dim_128x128.png"
-                alt="Complaint Management System Logo"
+                src="/assets/generated/up-police-logo.dim_128x128.png"
+                alt="UP Police Logo"
                 className="w-6 h-6 object-contain"
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
               />
               <span className="text-nav-foreground font-serif font-bold text-sm">
-                Complaint Management System
+                PS Sadar Bazar Application Box
               </span>
             </div>
-            <div className="px-4 py-2 space-y-1">
-              {navLinks.map(({ to, label, icon: Icon }) => {
-                const isActive = currentPath === to;
-                return (
-                  <Link
-                    key={to}
-                    to={to}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all',
-                      isActive
-                        ? 'bg-white/20 text-white'
-                        : 'text-white/80 hover:bg-white/10 hover:text-white'
-                    )}
+            {session && (
+              <div className="px-4 py-2 space-y-1">
+                {navLinks.map(({ to, label, icon: Icon }) => {
+                  const isActive = currentPath === to;
+                  return (
+                    <Link
+                      key={to}
+                      to={to}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all',
+                        isActive
+                          ? 'bg-white/20 text-white'
+                          : 'text-white/80 hover:bg-white/10 hover:text-white'
+                      )}
+                    >
+                      <Icon size={16} />
+                      {label}
+                    </Link>
+                  );
+                })}
+                <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className="border-white/30 text-white/90 bg-white/10 text-xs"
+                    >
+                      {session.role === 'admin' ? '🛡 Admin' : '👤 User'}
+                    </Badge>
+                    <span className="text-white/70 text-xs">{session.name}</span>
+                  </div>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
+                    className="flex items-center gap-1.5 text-white/80 hover:text-white text-sm px-2 py-1 rounded hover:bg-white/10 transition-colors"
                   >
-                    <Icon size={16} />
-                    {label}
-                  </Link>
-                );
-              })}
-            </div>
+                    <LogOut size={14} />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </header>
@@ -135,12 +206,10 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <Shield size={14} className="text-primary" />
-              <span>Complaint Management System &copy; {new Date().getFullYear()}</span>
+              <span>PS Sadar Bazar Application Box &copy; {new Date().getFullYear()}</span>
             </div>
             <p className="text-muted-foreground text-sm">
-              Built with{' '}
-              <span className="text-destructive">♥</span>{' '}
-              using{' '}
+              Built with <span className="text-destructive">♥</span> using{' '}
               <a
                 href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${appId}`}
                 target="_blank"

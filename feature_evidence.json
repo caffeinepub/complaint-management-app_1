@@ -2,27 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-generate-a-professional-government-civic-services-app-logo-image-for-the-complaint-management-app-the-logo-should-be-a-clean-formal-emblem-style-icon-suitable-for-a-top-navigation-bar-rendered-in-the-application-s-deep-teal-slate-blue-color-palette-on-a-transparent-background",
-      "featureTitle": "Generate a professional government/civic services app logo image for the Complaint Management App. The logo should be a clean, formal emblem-style icon suitable for a top navigation bar, rendered in the application's deep teal/slate blue color palette on a transparent background.",
-      "files": [],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-9"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-layout-tsx-navigation-bar-to-display-the-generated-app-logo-image-alongside-the-app-name-complaint-management-system-as-a-branded-header-unit-on-the-left-side-of-the-top-navigation-bar-the-logo-image-should-render-at-an-appropriate-small-size-e-g-36x36px-and-the-app-name-should-appear-in-a-prominent-bold-font-consistent-with-the-existing-government-civic-theme-both-the-logo-and-name-should-together-act-as-a-home-link-navigating-to-the-dashboard",
-      "featureTitle": "Update the Layout.tsx navigation bar to display the generated app logo image alongside the app name 'Complaint Management System' as a branded header unit on the left side of the top navigation bar. The logo image should render at an appropriate small size (e.g., 36x36px) and the app name should appear in a prominent, bold font consistent with the existing government/civic theme. Both the logo and name should together act as a home link navigating to the dashboard.",
+      "featureId": "feature-on-the-complaint-detail-page-admin-view-only-add-an-update-status-section-this-section-should-show-a-form-with-a-status-dropdown-pending-in-progress-resolved-an-updated-by-text-field-staff-admin-name-and-a-details-remarks-textarea-for-recording-progress-or-resolution-notes-include-an-update-status-submit-button-that-calls-the-updatecomplaintstatus-backend-function-and-refreshes-the-complaint-data-below-the-form-display-the-full-statuslog-history-in-a-table-with-columns-status-updated-by-date-time-and-details-ordered-from-newest-to-oldest-this-section-should-only-be-visible-to-admin-role-users",
+      "featureTitle": "On the Complaint Detail page (admin view only), add an 'Update Status' section. This section should show a form with: a Status dropdown ('Pending', 'In Progress', 'Resolved'), an 'Updated By' text field (staff/admin name), and a 'Details / Remarks' textarea for recording progress or resolution notes. Include an 'Update Status' submit button that calls the `updateComplaintStatus` backend function and refreshes the complaint data. Below the form, display the full `statusLog` history in a table with columns: Status, Updated By, Date & Time, and Details — ordered from newest to oldest. This section should only be visible to admin-role users.",
       "files": [
-        "frontend/src/components/Layout.tsx"
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/ComplaintDetail.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -30,10 +14,11 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-10"
+        "REQ-19"
       ],
       "confidence": "high"
     }
