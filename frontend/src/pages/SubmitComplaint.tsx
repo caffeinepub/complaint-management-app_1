@@ -1,31 +1,18 @@
 import { useState, useRef } from 'react';
-import { toast } from 'sonner';
-import { ExternalBlob } from '../backend';
+import { useNavigate } from '@tanstack/react-router';
 import { useSubmitComplaint } from '../hooks/useQueries';
+import { ExternalBlob } from '../backend';
+import { useCamera } from '../camera/useCamera';
 import { formatComplaintNumber } from '../lib/utils';
-import { translations, Language } from '../lib/i18n';
+import { type Language, t } from '../lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  FileText,
-  Upload,
-  CheckCircle2,
-  Loader2,
-  X,
-  User,
-  Phone,
-  MapPin,
-  ClipboardList,
-  Paperclip,
-  LayoutDashboard,
-  Languages,
-} from 'lucide-react';
-import { Link } from '@tanstack/react-router';
-import { useAuth } from '@/hooks/useAuth';
+import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CheckCircle, Camera, Upload, X, FileText, AlertCircle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface FormData {
   applicantName: string;
@@ -35,142 +22,167 @@ interface FormData {
   complaintDetail: string;
 }
 
-const initialForm: FormData = {
-  applicantName: '',
-  fatherName: '',
-  address: '',
-  mobileNumber: '',
-  complaintDetail: '',
-};
+interface FormErrors {
+  applicantName?: string;
+  fatherName?: string;
+  address?: string;
+  mobileNumber?: string;
+  complaintDetail?: string;
+}
 
 export default function SubmitComplaint() {
   const [lang, setLang] = useState<Language>('en');
-  const [form, setForm] = useState<FormData>(initialForm);
-  const [errors, setErrors] = useState<Partial<FormData>>({});
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [successComplaintNumber, setSuccessComplaintNumber] = useState<bigint | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [formData, setFormData] = useState<FormData>({
+    applicantName: '',
+    fatherName: '',
+    address: '',
+    mobileNumber: '',
+    complaintDetail: '',
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [submittedComplaintNumber, setSubmittedComplaintNumber] = useState<bigint | null>(null);
+  const [submittedMobile, setSubmittedMobile] = useState('');
+  const [showCamera, setShowCamera] = useState(false);
 
-  const { session } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const submitMutation = useSubmitComplaint();
-  const t = translations[lang];
+  const navigate = useNavigate();
+
+  const {
+    isActive,
+    isSupported,
+    error: cameraError,
+    isLoading: cameraLoading,
+    startCamera,
+    stopCamera,
+    capturePhoto,
+    videoRef,
+    canvasRef,
+  } = useCamera({ facingMode: 'environment' });
 
   const validate = (): boolean => {
-    const newErrors: Partial<FormData> = {};
-    if (!form.applicantName.trim()) newErrors.applicantName = t.errors.applicantName;
-    if (!form.fatherName.trim()) newErrors.fatherName = t.errors.fatherName;
-    if (!form.address.trim()) newErrors.address = t.errors.address;
-    if (!form.mobileNumber.trim()) {
-      newErrors.mobileNumber = t.errors.mobileNumber;
-    } else if (!/^\d{10,15}$/.test(form.mobileNumber.replace(/[\s\-+]/g, ''))) {
-      newErrors.mobileNumber = t.errors.mobileNumberInvalid;
+    const newErrors: FormErrors = {};
+    if (!formData.applicantName.trim()) newErrors.applicantName = t(lang, 'nameRequired');
+    if (!formData.fatherName.trim()) newErrors.fatherName = t(lang, 'fatherNameRequired');
+    if (!formData.address.trim()) newErrors.address = t(lang, 'addressRequired');
+    if (!formData.mobileNumber.trim()) {
+      newErrors.mobileNumber = t(lang, 'mobileRequired');
+    } else if (!/^\d{10}$/.test(formData.mobileNumber)) {
+      newErrors.mobileNumber = t(lang, 'mobileInvalid');
     }
-    if (!form.complaintDetail.trim()) newErrors.complaintDetail = t.errors.complaintDetail;
-    else if (form.complaintDetail.trim().length < 20)
-      newErrors.complaintDetail = t.errors.complaintDetailShort;
+    if (!formData.complaintDetail.trim()) newErrors.complaintDetail = t(lang, 'complaintRequired');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const allowed = ['application/pdf', 'image/jpeg', 'image/jpg'];
-    if (!allowed.includes(file.type)) {
-      toast.error('Invalid file type. Only PDF and JPG files are allowed.');
-      return;
+    if (file) {
+      setAttachedFile(file);
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('File size must be less than 10MB.');
-      return;
-    }
-    setSelectedFile(file);
   };
 
-  const handleRemoveFile = () => {
-    setSelectedFile(null);
-    setUploadProgress(0);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+  const handleOpenCamera = async () => {
+    setShowCamera(true);
+    await startCamera();
   };
 
-  const handleChange = (field: keyof FormData, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+  const handleCloseCamera = async () => {
+    await stopCamera();
+    setShowCamera(false);
+  };
+
+  const handleCapturePhoto = async () => {
+    const file = await capturePhoto();
+    if (file) {
+      setAttachedFile(file);
+      await stopCamera();
+      setShowCamera(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
-    let attachedFile: ExternalBlob | null = null;
-
-    if (selectedFile) {
-      const bytes = new Uint8Array(await selectedFile.arrayBuffer());
-      attachedFile = ExternalBlob.fromBytes(bytes).withUploadProgress((pct) => {
-        setUploadProgress(pct);
-      });
-    }
-
     try {
+      let externalBlob: ExternalBlob | null = null;
+      if (attachedFile) {
+        const bytes = new Uint8Array(await attachedFile.arrayBuffer());
+        externalBlob = ExternalBlob.fromBytes(bytes).withUploadProgress((pct) =>
+          setUploadProgress(pct)
+        );
+      }
+
       const complaintNumber = await submitMutation.mutateAsync({
-        ...form,
-        attachedFile,
+        ...formData,
+        attachedFile: externalBlob,
       });
-      setSuccessComplaintNumber(complaintNumber);
-      setForm(initialForm);
-      setSelectedFile(null);
-      setUploadProgress(0);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      toast.success(lang === 'en' ? 'Complaint submitted successfully!' : 'शिकायत सफलतापूर्वक दर्ज की गई!');
+
+      setSubmittedMobile(formData.mobileNumber);
+      setSubmittedComplaintNumber(complaintNumber);
     } catch (err) {
-      toast.error(lang === 'en' ? 'Failed to submit complaint. Please try again.' : 'शिकायत दर्ज करने में विफल। कृपया पुनः प्रयास करें।');
-      console.error(err);
+      console.error('Submission error:', err);
     }
   };
 
-  if (successComplaintNumber !== null) {
+  const handleReset = () => {
+    setFormData({
+      applicantName: '',
+      fatherName: '',
+      address: '',
+      mobileNumber: '',
+      complaintDetail: '',
+    });
+    setAttachedFile(null);
+    setUploadProgress(0);
+    setSubmittedComplaintNumber(null);
+    setSubmittedMobile('');
+    setErrors({});
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // Success Screen
+  if (submittedComplaintNumber !== null) {
+    const formattedNum = formatComplaintNumber(submittedComplaintNumber);
     return (
-      <div className="max-w-2xl mx-auto animate-fade-in">
-        <Card className="shadow-card border-success/30">
-          <CardContent className="pt-10 pb-10 text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center">
-                <CheckCircle2 size={44} className="text-success" />
-              </div>
-            </div>
-            <h2 className="text-2xl font-serif font-bold text-foreground mb-2">
-              {t.successTitle}
+      <div className="max-w-lg mx-auto mt-6 animate-fade-in">
+        <Card className="shadow-card border-0">
+          <CardContent className="pt-8 pb-8 text-center">
+            <CheckCircle size={64} className="text-green-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-navy-800 mb-1">
+              {t(lang, 'successTitle')}
             </h2>
-            <p className="text-muted-foreground mb-6">{t.successSubtitle}</p>
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-6 mb-8 inline-block w-full">
-              <p className="text-sm text-muted-foreground mb-1 uppercase tracking-wider font-medium">
-                {t.complaintNumberLabel}
+            <p className="text-gray-600 text-sm mb-5">शिकायत सफलतापूर्वक दर्ज की गई!</p>
+
+            <div className="bg-navy-50 border-2 border-navy-200 rounded-lg p-4 mb-5">
+              <p className="text-sm text-navy-600 mb-1">
+                {t(lang, 'complaintNumber')} / शिकायत संख्या
               </p>
-              <p className="text-3xl font-bold text-primary font-mono tracking-widest">
-                {formatComplaintNumber(successComplaintNumber)}
-              </p>
-              <p className="text-xs text-muted-foreground mt-2">
-                (Reference ID: {successComplaintNumber.toString()})
+              <p className="text-3xl font-bold text-navy-800 tracking-wider font-mono">
+                {formattedNum}
               </p>
             </div>
-            <Alert className="text-left mb-6 bg-accent/50">
-              <CheckCircle2 size={16} className="text-success" />
-              <AlertTitle>{t.notificationSent}</AlertTitle>
-              <AlertDescription>{t.notificationDetail}</AlertDescription>
-            </Alert>
+
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-5 text-sm text-green-800">
+              <p>✓ {t(lang, 'smsSent')}: <strong>{submittedMobile}</strong></p>
+              <p className="text-xs text-green-600 mt-1">
+                ✓ आपके मोबाइल नंबर पर SMS सूचना भेजी गई है
+              </p>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button variant="outline" onClick={() => setSuccessComplaintNumber(null)}>
-                {t.submitAnother}
+              <Button
+                onClick={handleReset}
+                className="bg-navy-700 hover:bg-navy-800 text-white"
+              >
+                {t(lang, 'submitAnother')}
               </Button>
-              {session?.role === 'admin' && (
-                <Link to="/dashboard">
-                  <Button className="w-full sm:w-auto">
-                    <LayoutDashboard size={16} className="mr-2" />
-                    {t.viewAll}
-                  </Button>
-                </Link>
-              )}
+              <Button variant="outline" onClick={() => navigate({ to: '/login' })}>
+                {t(lang, 'backToLogin')}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -179,214 +191,295 @@ export default function SubmitComplaint() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto animate-fade-in">
-      {/* Page Header */}
-      <div className="flex items-start justify-between mb-6 gap-4">
+    <div className="max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="govt-header rounded-t-lg px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <ClipboardList size={20} className="text-primary" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="UP Police"
+            className="h-10 w-10 object-contain"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
           <div>
-            <h1 className="text-2xl font-serif font-bold text-foreground">{t.pageTitle}</h1>
-            <p className="text-muted-foreground text-sm">{t.pageSubtitle}</p>
+            <h1 className="text-white font-bold text-lg">{t(lang, 'complaintForm')}</h1>
+            <p className="text-saffron-400 text-xs">शिकायत पंजीकरण फॉर्म</p>
           </div>
         </div>
-        {/* Language Toggle */}
-        <Button
-          variant="outline"
-          size="sm"
+        <button
           onClick={() => setLang(lang === 'en' ? 'hi' : 'en')}
-          className="flex-shrink-0 gap-1.5"
+          className="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-full transition-colors"
         >
-          <Languages size={14} />
-          {t.langToggle}
-        </Button>
+          {lang === 'en' ? 'हिंदी' : 'English'}
+        </button>
       </div>
 
-      <Card className="shadow-card">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base flex items-center gap-2">
-            <FileText size={16} className="text-primary" />
-            {lang === 'en' ? 'Complaint Form' : 'शिकायत प्रपत्र'}
-          </CardTitle>
-          <CardDescription>
-            {lang === 'en'
-              ? 'All fields marked are required. Please fill in accurate information.'
-              : 'सभी चिह्नित फ़ील्ड आवश्यक हैं। कृपया सटीक जानकारी भरें।'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Card className="rounded-t-none shadow-card border-0">
+        <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Applicant Name */}
-            <div className="space-y-1.5">
-              <Label htmlFor="applicantName" className="flex items-center gap-1.5 text-sm font-medium">
-                <User size={13} className="text-muted-foreground" />
-                {t.applicantName} <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="applicantName"
-                placeholder={t.applicantNamePlaceholder}
-                value={form.applicantName}
-                onChange={(e) => handleChange('applicantName', e.target.value)}
-                className={errors.applicantName ? 'border-destructive' : ''}
-              />
-              {errors.applicantName && (
-                <p className="text-xs text-destructive">{errors.applicantName}</p>
-              )}
-            </div>
+            {/* Name + Father Name */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-navy-800 font-medium text-sm">
+                  {t(lang, 'name')} / नाम <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  value={formData.applicantName}
+                  onChange={(e) => {
+                    setFormData({ ...formData, applicantName: e.target.value });
+                    if (errors.applicantName) setErrors({ ...errors, applicantName: undefined });
+                  }}
+                  placeholder={lang === 'en' ? 'Full Name' : 'पूरा नाम'}
+                  className={errors.applicantName ? 'border-red-400' : ''}
+                />
+                {errors.applicantName && (
+                  <p className="text-red-500 text-xs">{errors.applicantName}</p>
+                )}
+              </div>
 
-            {/* Father's Name */}
-            <div className="space-y-1.5">
-              <Label htmlFor="fatherName" className="flex items-center gap-1.5 text-sm font-medium">
-                <User size={13} className="text-muted-foreground" />
-                {t.fatherName} <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="fatherName"
-                placeholder={t.fatherNamePlaceholder}
-                value={form.fatherName}
-                onChange={(e) => handleChange('fatherName', e.target.value)}
-                className={errors.fatherName ? 'border-destructive' : ''}
-              />
-              {errors.fatherName && (
-                <p className="text-xs text-destructive">{errors.fatherName}</p>
-              )}
+              <div className="space-y-1.5">
+                <Label className="text-navy-800 font-medium text-sm">
+                  {t(lang, 'fatherName')} / पिता का नाम <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  value={formData.fatherName}
+                  onChange={(e) => {
+                    setFormData({ ...formData, fatherName: e.target.value });
+                    if (errors.fatherName) setErrors({ ...errors, fatherName: undefined });
+                  }}
+                  placeholder={lang === 'en' ? "Father's Name" : 'पिता का नाम'}
+                  className={errors.fatherName ? 'border-red-400' : ''}
+                />
+                {errors.fatherName && (
+                  <p className="text-red-500 text-xs">{errors.fatherName}</p>
+                )}
+              </div>
             </div>
 
             {/* Address */}
             <div className="space-y-1.5">
-              <Label htmlFor="address" className="flex items-center gap-1.5 text-sm font-medium">
-                <MapPin size={13} className="text-muted-foreground" />
-                {t.address} <span className="text-destructive">*</span>
+              <Label className="text-navy-800 font-medium text-sm">
+                {t(lang, 'address')} / पता <span className="text-red-500">*</span>
               </Label>
               <Textarea
-                id="address"
-                placeholder={t.addressPlaceholder}
-                value={form.address}
-                onChange={(e) => handleChange('address', e.target.value)}
+                value={formData.address}
+                onChange={(e) => {
+                  setFormData({ ...formData, address: e.target.value });
+                  if (errors.address) setErrors({ ...errors, address: undefined });
+                }}
+                placeholder={lang === 'en' ? 'Full Address' : 'पूरा पता'}
                 rows={2}
-                className={errors.address ? 'border-destructive' : ''}
+                className={errors.address ? 'border-red-400' : ''}
               />
-              {errors.address && (
-                <p className="text-xs text-destructive">{errors.address}</p>
-              )}
+              {errors.address && <p className="text-red-500 text-xs">{errors.address}</p>}
             </div>
 
-            {/* Mobile Number */}
+            {/* Mobile */}
             <div className="space-y-1.5">
-              <Label htmlFor="mobileNumber" className="flex items-center gap-1.5 text-sm font-medium">
-                <Phone size={13} className="text-muted-foreground" />
-                {t.mobileNumber} <span className="text-destructive">*</span>
+              <Label className="text-navy-800 font-medium text-sm">
+                {t(lang, 'mobileNo')} / मोबाइल नंबर <span className="text-red-500">*</span>
               </Label>
               <Input
-                id="mobileNumber"
                 type="tel"
-                placeholder={t.mobileNumberPlaceholder}
-                value={form.mobileNumber}
-                onChange={(e) => handleChange('mobileNumber', e.target.value)}
-                className={errors.mobileNumber ? 'border-destructive' : ''}
+                value={formData.mobileNumber}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    mobileNumber: e.target.value.replace(/\D/g, '').slice(0, 10),
+                  });
+                  if (errors.mobileNumber) setErrors({ ...errors, mobileNumber: undefined });
+                }}
+                placeholder="10-digit mobile number / 10 अंकों का मोबाइल नंबर"
+                maxLength={10}
+                className={errors.mobileNumber ? 'border-red-400' : ''}
               />
               {errors.mobileNumber && (
-                <p className="text-xs text-destructive">{errors.mobileNumber}</p>
+                <p className="text-red-500 text-xs">{errors.mobileNumber}</p>
               )}
             </div>
 
             {/* Complaint Detail */}
             <div className="space-y-1.5">
-              <Label htmlFor="complaintDetail" className="flex items-center gap-1.5 text-sm font-medium">
-                <ClipboardList size={13} className="text-muted-foreground" />
-                {t.complaintDetail} <span className="text-destructive">*</span>
+              <Label className="text-navy-800 font-medium text-sm">
+                {t(lang, 'complaintDetail')} / शिकायत विवरण <span className="text-red-500">*</span>
               </Label>
               <Textarea
-                id="complaintDetail"
-                placeholder={t.complaintDetailPlaceholder}
-                value={form.complaintDetail}
-                onChange={(e) => handleChange('complaintDetail', e.target.value)}
-                rows={5}
-                className={errors.complaintDetail ? 'border-destructive' : ''}
+                value={formData.complaintDetail}
+                onChange={(e) => {
+                  setFormData({ ...formData, complaintDetail: e.target.value });
+                  if (errors.complaintDetail) setErrors({ ...errors, complaintDetail: undefined });
+                }}
+                placeholder={
+                  lang === 'en'
+                    ? 'Describe your complaint in detail...'
+                    : 'अपनी शिकायत का विस्तार से वर्णन करें...'
+                }
+                rows={4}
+                className={errors.complaintDetail ? 'border-red-400' : ''}
               />
-              <div className="flex justify-between items-center">
-                {errors.complaintDetail ? (
-                  <p className="text-xs text-destructive">{errors.complaintDetail}</p>
-                ) : (
-                  <span />
-                )}
-                <p className="text-xs text-muted-foreground ml-auto">
-                  {form.complaintDetail.length} {lang === 'en' ? 'chars' : 'अक्षर'}
-                </p>
-              </div>
+              {errors.complaintDetail && (
+                <p className="text-red-500 text-xs">{errors.complaintDetail}</p>
+              )}
             </div>
 
-            {/* File Upload */}
-            <div className="space-y-1.5">
-              <Label className="flex items-center gap-1.5 text-sm font-medium">
-                <Paperclip size={13} className="text-muted-foreground" />
-                {t.attachFile}
+            {/* File Attachment */}
+            <div className="space-y-2">
+              <Label className="text-navy-800 font-medium text-sm">
+                {t(lang, 'attachFile')} / फ़ाइल संलग्न करें
               </Label>
-              {!selectedFile ? (
-                <div
-                  className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all"
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 border-navy-300 text-navy-700 hover:bg-navy-50"
                 >
-                  <Upload size={24} className="mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">{t.attachFileHint}</p>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                  <FileText size={20} className="text-primary flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{selectedFile.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {(selectedFile.size / 1024).toFixed(1)} KB
-                    </p>
-                    {uploadProgress > 0 && uploadProgress < 100 && (
-                      <div className="mt-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary transition-all"
-                          style={{ width: `${uploadProgress}%` }}
-                        />
-                      </div>
-                    )}
-                  </div>
+                  <Upload size={16} />
+                  {lang === 'en' ? 'Upload File (PDF/JPG)' : 'फ़ाइल अपलोड करें (PDF/JPG)'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleOpenCamera}
+                  className="flex items-center gap-2 border-saffron-500 text-saffron-700 hover:bg-saffron-50"
+                >
+                  <Camera size={16} />
+                  {t(lang, 'capturePhoto')} / फ़ोटो कैप्चर करें
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </div>
+
+              {attachedFile && (
+                <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded px-3 py-2 text-sm text-green-800">
+                  <FileText size={14} />
+                  <span className="flex-1 truncate">{attachedFile.name}</span>
+                  <span className="text-xs text-gray-500">
+                    ({(attachedFile.size / 1024).toFixed(1)} KB)
+                  </span>
                   <button
                     type="button"
-                    onClick={handleRemoveFile}
-                    className="p-1 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                    onClick={() => {
+                      setAttachedFile(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    className="text-red-500 hover:text-red-700"
                   >
-                    <X size={16} />
+                    <X size={14} />
                   </button>
                 </div>
               )}
+
+              {submitMutation.isPending && uploadProgress > 0 && uploadProgress < 100 && (
+                <div className="space-y-1">
+                  <Progress value={uploadProgress} className="h-2" />
+                  <p className="text-xs text-gray-500">
+                    Uploading... {uploadProgress}% / अपलोड हो रहा है...
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Submit */}
+            {submitMutation.isError && (
+              <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded">
+                <AlertCircle size={16} />
+                Submission failed. Please try again. / सबमिशन विफल। कृपया पुनः प्रयास करें।
+              </div>
+            )}
+
             <Button
               type="submit"
-              className="w-full"
               disabled={submitMutation.isPending}
+              className="w-full bg-navy-700 hover:bg-navy-800 text-white font-semibold py-3 text-base"
             >
-              {submitMutation.isPending ? (
-                <>
-                  <Loader2 size={16} className="animate-spin mr-2" />
-                  {t.submitting}
-                </>
-              ) : (
-                <>
-                  <Upload size={16} className="mr-2" />
-                  {t.submitButton}
-                </>
-              )}
+              {submitMutation.isPending
+                ? lang === 'en'
+                  ? 'Submitting...'
+                  : 'दर्ज हो रहा है...'
+                : `${t(lang, 'submit')} / शिकायत दर्ज करें`}
             </Button>
           </form>
         </CardContent>
       </Card>
+
+      {/* Camera Dialog */}
+      <Dialog
+        open={showCamera}
+        onOpenChange={(open) => {
+          if (!open) handleCloseCamera();
+        }}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-navy-800">
+              <Camera size={20} />
+              {t(lang, 'cameraPreview')} / कैमरा पूर्वावलोकन
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {isSupported === false ? (
+              <div className="text-center py-8 text-red-600">
+                <AlertCircle size={40} className="mx-auto mb-2" />
+                <p>
+                  {t(lang, 'cameraNotSupported')} / कैमरा समर्थित नहीं है
+                </p>
+              </div>
+            ) : (
+              <>
+                {cameraError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded flex items-center gap-2">
+                    <AlertCircle size={16} />
+                    {cameraError.type === 'permission'
+                      ? `${t(lang, 'cameraAccessDenied')} / कैमरा एक्सेस अस्वीकृत`
+                      : cameraError.message}
+                  </div>
+                )}
+                <div
+                  className="relative bg-black rounded-lg overflow-hidden w-full"
+                  style={{ aspectRatio: '4/3', minHeight: '300px' }}
+                >
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                  />
+                  {cameraLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                      <p className="text-white text-sm">
+                        {lang === 'en' ? 'Starting camera...' : 'कैमरा शुरू हो रहा है...'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <canvas ref={canvasRef} className="hidden" />
+                <div className="flex gap-3 justify-center">
+                  <Button
+                    type="button"
+                    onClick={handleCapturePhoto}
+                    disabled={!isActive || cameraLoading}
+                    className="bg-navy-700 hover:bg-navy-800 text-white flex items-center gap-2"
+                  >
+                    <Camera size={16} />
+                    {t(lang, 'takePicture')} / तस्वीर लें
+                  </Button>
+                  <Button type="button" variant="outline" onClick={handleCloseCamera}>
+                    Cancel / रद्द करें
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

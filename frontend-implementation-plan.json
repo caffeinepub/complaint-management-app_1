@@ -1,30 +1,261 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add status update with resolution/progress detail notes",
+  "title": "PS Sadar Bazar Application Box – Frontend Implementation",
   "requirements": [
     {
-      "id": "REQ-19",
-      "summary": "Add admin-only 'Update Status' section to Complaint Detail page with form for status updates (dropdown, updatedBy field, details textarea) and status log history table displaying past entries ordered newest to oldest",
+      "id": "REQ-1",
+      "summary": "Display UP Police logo on Login page header and navigation bar with application title",
       "acceptanceCriteria": [
-        "The 'Update Status' section is visible only to admin-role users on the Complaint Detail page.",
-        "The form includes a Status dropdown with options: Pending, In Progress, Resolved.",
-        "The form includes an 'Updated By' text field and a 'Details / Remarks' textarea.",
-        "Submitting the form calls `updateComplaintStatus` with the correct arguments.",
-        "After a successful update, the complaint's current status badge on the page reflects the new status.",
-        "The status log history table displays all past status entries with Status, Updated By, Date & Time, and Details columns.",
-        "The status log entries are ordered from newest to oldest."
+        "UP Police logo is visible on the login page above the login form.",
+        "UP Police logo is visible in the navigation/app bar on all authenticated pages.",
+        "Title 'PS Sadar Bazar Application Box - UP Police' appears alongside the logo."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/pages/Login.tsx",
           "operation": "modify",
-          "description": "Add a new React Query mutation hook `useUpdateComplaintStatus` that calls `actor.updateComplaintStatus(complaintNumber, newStatus, updatedBy, details)` and invalidates the complaint detail and list queries on success. The hook should accept parameters for complaintNumber, newStatus (ComplaintStatus enum), updatedBy (string), and details (string)."
+          "description": "Add the UP Police logo (logo.png from workspace root, reference as '/logo.png') prominently above the login form header. Include the bilingual title 'PS Sadar Bazar Application Box - UP Police / पीएस सदर बाजार एप्लीकेशन बॉक्स - यूपी पुलिस' beneath the logo using the official branding color scheme."
+        },
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "operation": "modify",
+          "description": "Replace any existing logo/branding in the navigation bar with the UP Police logo (logo.png from workspace root, reference as '/logo.png'). Display it alongside the title 'PS Sadar Bazar Application Box - UP Police' in the nav header using the government color scheme (deep navy and saffron/gold). Ensure the logo is visible on all authenticated pages."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Implement Admin password change flow with mobile OTP verification UI",
+      "acceptanceCriteria": [
+        "Admin can log in with a valid ID and password.",
+        "Admin can navigate to a 'Change Password' screen.",
+        "Change password flow requires entering the registered mobile number for verification.",
+        "Backend stores and validates the mobile OTP (simulated) before allowing password update.",
+        "New password is saved and old credentials no longer work after update."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useAuth.ts",
+          "operation": "modify",
+          "description": "Extend the authentication context to support password change functionality. Add methods for initiating password change (requires mobile number input), verifying OTP, and updating password. Store the updated credentials in localStorage after successful verification. Include error handling for invalid OTP or mobile number mismatch."
+        },
+        {
+          "path": "frontend/src/pages/ChangePassword.tsx",
+          "operation": "create",
+          "description": "Create a bilingual (English/Hindi) password change page for admins. Include fields for: current password, registered mobile number (for OTP verification), OTP input (6-digit), new password, and confirm new password. Display simulated OTP verification flow with clear instructions. Show success/failure messages in both languages. Use the government color scheme and official typography. Include validation for password strength and OTP format."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register the /change-password route in the route tree, protected by ProtectedRoute with adminOnly set to true. Ensure it appears in the navigation for authenticated admin users."
+        },
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "operation": "modify",
+          "description": "Add a 'Change Password / पासवर्ड बदलें' navigation link in the admin section of the nav bar (visible only to admins) that navigates to /change-password."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Ensure User/Applicant login redirects to complaint submission form after successful authentication",
+      "acceptanceCriteria": [
+        "A user/applicant can log in with valid ID and password.",
+        "Successful login redirects the user to the complaint submission form.",
+        "Invalid credentials show an error message in both Hindi and English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Login.tsx",
+          "operation": "modify",
+          "description": "Update the login page redirect logic to distinguish between admin and regular user roles. After successful login, redirect admins to /dashboard and regular users to /submit-complaint. Ensure error messages for invalid credentials are displayed in both Hindi and English using the i18n utility."
+        },
+        {
+          "path": "frontend/src/hooks/useAuth.ts",
+          "operation": "modify",
+          "description": "Ensure the login method returns or exposes the user's role (admin vs user) so the Login page can perform role-based redirection. Update the session data structure in localStorage to store the role alongside credentials."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Enhance complaint submission form with camera capture support for attachments",
+      "acceptanceCriteria": [
+        "All form fields display labels in both Hindi and English.",
+        "File input accepts PDF and JPG file types.",
+        "Camera capture option is available for mobile devices (via input[capture=camera]).",
+        "Validation errors are shown in both languages.",
+        "Form cannot be submitted without required fields filled."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SubmitComplaint.tsx",
+          "operation": "modify",
+          "description": "Integrate the camera component from the camera/useCamera.ts hook to allow users to capture photos directly from their device camera. Add a 'Capture Photo / फ़ोटो कैप्चर करें' button alongside the existing file upload input. When the user clicks this button, open a camera preview modal using the useCamera hook, display the live camera feed with explicit dimensions (min-height: 400px, aspect-ratio: 4/3), and provide a capture button. On capture, convert the photo to a File object and set it as the attachedFile. Ensure the camera preview is responsive and displays error messages if camera access is denied. Disable the capture button until the camera is fully initialized. Use the blob-storage component's ExternalBlob.fromBytes method to handle the captured photo. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/i18n.ts",
+          "operation": "modify",
+          "description": "Add translation strings for camera-related UI elements: 'Capture Photo / फ़ोटो कैप्चर करें', 'Camera Preview / कैमरा पूर्वावलोकन', 'Take Picture / तस्वीर लें', 'Retake / फिर से लें', 'Use Photo / फ़ोटो का उपयोग करें', 'Camera not supported / कैमरा समर्थित नहीं है', 'Camera access denied / कैमरा एक्सेस अस्वीकृत'."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Display generated complaint number and SMS simulation message after successful submission",
+      "acceptanceCriteria": [
+        "Each submitted complaint receives a unique, formatted complaint number (e.g., PSSB-2024-0001).",
+        "Complaint number is shown on the confirmation screen after submission.",
+        "A notification record is created in the backend referencing the applicant's mobile number and complaint number.",
+        "The confirmation screen shows a message indicating that an SMS has been sent to the applicant's mobile."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SubmitComplaint.tsx",
+          "operation": "modify",
+          "description": "After successful complaint submission, display a success confirmation screen showing the generated complaint number (formatted using the formatComplaintNumber utility from lib/utils.ts). Include a bilingual message: 'Your complaint has been registered successfully. Complaint Number: PSSB-YYYY-NNNN. An SMS notification has been sent to your mobile number XXX-XXX-XXXX. / आपकी शिकायत सफलतापूर्वक दर्ज की गई है। शिकायत संख्या: PSSB-YYYY-NNNN। आपके मोबाइल नंबर XXX-XXX-XXXX पर एक एसएमएस सूचना भेजी गई है।' Use the government color scheme for the success message and provide a button to submit another complaint or return to the login page."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Implement Officer Management panel with officer assignment UI",
+      "acceptanceCriteria": [
+        "Admin can add a new officer with name and mobile number.",
+        "Admin can assign an officer to a specific complaint from the complaint detail page.",
+        "Backend stores the officer assignment against the complaint.",
+        "A notification record is created referencing the officer's mobile and the assigned complaint number."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/OfficersManagement.tsx",
+          "operation": "modify",
+          "description": "Enhance the officer management page by adding a 'Designation / पदनाम' field to the officer creation form (required field). Update the form validation to require name, mobile number, and designation. Display the designation column in the officers table. Include bilingual labels and placeholders. Ensure the form uses the useAddOfficer hook from useQueries.ts."
         },
         {
           "path": "frontend/src/pages/ComplaintDetail.tsx",
           "operation": "modify",
-          "description": "Add an 'Update Status' section visible only when `isAdmin` is true. Include a form with a Status dropdown (Pending, In Progress, Resolved using ComplaintStatus enum values), an 'Updated By' text input, and a 'Details / Remarks' textarea. Wire the form submission to call `useUpdateComplaintStatus` mutation with the complaint number and form values. Below the form, add a status log history table with columns: Status, Updated By, Date & Time, Details. Map over `complaint.statusLog` in reverse order (newest first) to display each entry. Use the `formatTimestamp` utility from `frontend/src/lib/utils.ts` to display dates. Show loading/error states for the mutation. After successful update, the page should automatically refresh to show the new status badge and updated log."
+          "description": "Add an 'Assign Officer / अधिकारी नियुक्त करें' section on the complaint detail page (visible only to admins). Display a dropdown populated with all officers from useListOfficers hook, showing officer name and designation. Include an 'Assign / नियुक्त करें' button that calls the useAssignOfficer mutation. After successful assignment, display a bilingual confirmation message: 'Officer assigned successfully. An SMS notification has been sent to the officer's mobile number. / अधिकारी सफलतापूर्वक नियुक्त किया गया। अधिकारी के मोबाइल नंबर पर एक एसएमएस सूचना भेजी गई है।' Show the assigned officer's details (name, designation, mobile) in the complaint information section."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Ensure the /officers route is registered in the route tree and protected by ProtectedRoute with adminOnly set to true."
+        },
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "operation": "modify",
+          "description": "Add an 'Officers / अधिकारी' navigation link in the admin section of the nav bar (visible only to admins) that navigates to /officers."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Implement complaint status update UI with resolution details and hearing date/time",
+      "acceptanceCriteria": [
+        "Complaint detail page shows current status with a dropdown or button group to change it.",
+        "Admin can enter resolution details text when updating status.",
+        "Admin can set a hearing date and time when updating status.",
+        "All status changes are logged with timestamp in the backend status log.",
+        "Status history is displayed on the complaint detail page."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ComplaintDetail.tsx",
+          "operation": "modify",
+          "description": "Add a 'Update Status / स्थिति अपडेट करें' section on the complaint detail page (visible only to admins). Include a dropdown/select to choose new status (Pending, In Progress, Resolved) with bilingual labels. Add fields for 'Resolution Details / समाधान विवरण' (textarea), 'Hearing Date / सुनवाई तिथि' (date input), and 'Hearing Time / सुनवाई समय' (time input). Include an 'Update Status / स्थिति अपडेट करें' button that calls the useUpdateComplaintStatus mutation with the entered details. Display the status history (statusLog array) in a timeline or table format showing status, timestamp (formatted using formatTimestamp utility), updated by, and details. Use the getStatusLabel and getStatusColor utilities for consistent status display."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Implement attendance/hearing record UI on complaint detail page",
+      "acceptanceCriteria": [
+        "Admin or officer can log attendance details including officer name, date, and time.",
+        "Attendance records are stored in the backend linked to the complaint.",
+        "All attendance entries are displayed in a list on the complaint detail page."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ComplaintDetail.tsx",
+          "operation": "modify",
+          "description": "Add a 'Record Attendance / उपस्थिति दर्ज करें' section on the complaint detail page (visible to admins). Include fields for 'Attended By / उपस्थित व्यक्ति' (text input for officer name), 'Attendance Date / उपस्थिति तिथि' (date input), 'Attendance Time / उपस्थिति समय' (time input), and 'Remarks / टिप्पणी' (optional textarea). Include a 'Record / दर्ज करें' button that calls the useRecordAttendance mutation. Display all attendance records (attendanceLog array) in a table format showing attended by, date, time, and remarks with bilingual column headers. Ensure all labels and placeholders are bilingual."
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Generate and download printable PDF receipt for complaints with attached file reference",
+      "acceptanceCriteria": [
+        "A 'Download Receipt / PDF रसीद' button is present on the complaint detail page.",
+        "Generated PDF includes complaint number, all applicant fields, complaint detail, status, officer info, and hearing date/time.",
+        "PDF includes a note or reference indicating the name of any attached file.",
+        "PDF is styled with the UP Police branding (logo and app title).",
+        "PDF can be opened or downloaded directly from the browser."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/pdfGenerator.ts",
+          "operation": "modify",
+          "description": "Update the PDF generation function to include the UP Police logo (reference as '/logo.png') at the top of the receipt. Add the application title 'PS Sadar Bazar Application Box - UP Police' in the header. Include all required sections: complaint number (formatted), applicant details (name, father's name, address, mobile), complaint detail, current status (with color coding using getStatusColor utility), assigned officer details (name, designation, mobile if assigned), hearing date/time (if available), and a reference note for the attached file showing the filename if present. Apply the government color scheme (deep navy header, saffron accents) and formal typography. Ensure the PDF layout is print-friendly."
+        },
+        {
+          "path": "frontend/src/pages/ComplaintDetail.tsx",
+          "operation": "modify",
+          "description": "Add a 'Download Receipt / PDF रसीद डाउनलोड करें' button in the complaint detail page header or actions section. When clicked, call the PDF generation function from lib/pdfGenerator.ts with the complete complaint data. Open the generated PDF in a new browser tab or trigger a download. Ensure the button is styled with the government color scheme."
+        }
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "summary": "Apply consistent UP Police government branding theme across the entire application",
+      "acceptanceCriteria": [
+        "Color palette uses deep navy, white, and saffron/gold tones throughout.",
+        "All pages use consistent font styling appropriate for a government application.",
+        "Login page, forms, and admin dashboard all follow the same visual theme.",
+        "Bilingual labels are consistently formatted on all user-facing screens."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Update the CSS custom properties to define a government/UP Police color scheme: deep navy (#1a237e or similar) for primary/header backgrounds, white for backgrounds, saffron/gold (#ff9800 or #ffa726) for accents and highlights, and dark gray for text. Update the light theme CSS variables (--background, --foreground, --primary, --secondary, --accent, --muted, etc.) to use these colors. Ensure high contrast for accessibility. Add custom CSS for formal typography (clear, readable fonts like Roboto or Inter) and consistent spacing."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Update the Tailwind configuration to extend the color palette with UP Police-themed colors: 'navy' (deep navy blue), 'saffron' (saffron/gold), 'police-gold' (gold accent). Ensure these colors map to the CSS custom properties defined in index.css. Configure font families to use formal, government-appropriate typefaces (e.g., Roboto, Inter, or system fonts). Adjust border radius to be more conservative (smaller values) for a formal appearance."
+        },
+        {
+          "path": "frontend/src/pages/Login.tsx",
+          "operation": "modify",
+          "description": "Apply the government color scheme to the login page: use deep navy background for the header section (where the logo is displayed), white background for the form card, and saffron/gold accents for buttons and highlights. Ensure all text is clearly readable with high contrast. Use formal typography from the updated Tailwind config. Ensure bilingual labels (English/Hindi) are consistently formatted with appropriate font sizes and weights."
+        },
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "operation": "modify",
+          "description": "Apply the government color scheme to the navigation bar: use deep navy background with white text, saffron/gold highlights for active links, and the UP Police logo prominently displayed. Ensure the footer uses a consistent color scheme. Apply formal typography throughout. Ensure all navigation labels are bilingual where appropriate."
+        },
+        {
+          "path": "frontend/src/pages/SubmitComplaint.tsx",
+          "operation": "modify",
+          "description": "Apply the government color scheme to the complaint submission form: use white background for the form card, deep navy for section headers, and saffron/gold for the submit button. Ensure all bilingual labels are consistently formatted using the formal typography. Apply consistent spacing and alignment for a clean, professional appearance."
+        },
+        {
+          "path": "frontend/src/pages/ComplaintsDashboard.tsx",
+          "operation": "modify",
+          "description": "Apply the government color scheme to the admin dashboard: use deep navy for the page header, white for table backgrounds, and saffron/gold for stat card highlights and accents. Ensure the table layout is clean and formal with clear borders and consistent spacing. Apply formal typography to all text elements."
+        },
+        {
+          "path": "frontend/src/pages/ComplaintDetail.tsx",
+          "operation": "modify",
+          "description": "Apply the government color scheme to the complaint detail page: use deep navy for section headers, white for content cards, and saffron/gold for action buttons and status badges. Ensure all bilingual labels are consistently formatted. Apply formal typography and consistent spacing throughout."
+        },
+        {
+          "path": "frontend/src/pages/OfficersManagement.tsx",
+          "operation": "modify",
+          "description": "Apply the government color scheme to the officers management page: use deep navy for the page header, white for the form and table backgrounds, and saffron/gold for the add button and highlights. Ensure all bilingual labels are consistently formatted with formal typography."
         }
       ]
     }

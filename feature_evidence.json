@@ -2,10 +2,122 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-on-the-complaint-detail-page-admin-view-only-add-an-update-status-section-this-section-should-show-a-form-with-a-status-dropdown-pending-in-progress-resolved-an-updated-by-text-field-staff-admin-name-and-a-details-remarks-textarea-for-recording-progress-or-resolution-notes-include-an-update-status-submit-button-that-calls-the-updatecomplaintstatus-backend-function-and-refreshes-the-complaint-data-below-the-form-display-the-full-statuslog-history-in-a-table-with-columns-status-updated-by-date-time-and-details-ordered-from-newest-to-oldest-this-section-should-only-be-visible-to-admin-role-users",
-      "featureTitle": "On the Complaint Detail page (admin view only), add an 'Update Status' section. This section should show a form with: a Status dropdown ('Pending', 'In Progress', 'Resolved'), an 'Updated By' text field (staff/admin name), and a 'Details / Remarks' textarea for recording progress or resolution notes. Include an 'Update Status' submit button that calls the `updateComplaintStatus` backend function and refreshes the complaint data. Below the form, display the full `statusLog` history in a table with columns: Status, Updated By, Date & Time, and Details — ordered from newest to oldest. This section should only be visible to admin-role users.",
+      "featureId": "feature-display-the-uploaded-up-police-logo-logo-png-prominently-on-the-login-page-header-and-in-the-app-navigation-bar-alongside-the-title-ps-sadar-bazar-application-box-up-police",
+      "featureTitle": "Display the uploaded UP Police logo (logo.png) prominently on the Login page header and in the app navigation bar, alongside the title 'PS Sadar Bazar Application Box - UP Police'.",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/components/Layout.tsx",
+        "frontend/src/pages/Login.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-admin-login-with-username-id-and-password-authentication-admins-must-be-able-to-change-update-their-password-password-update-must-require-verification-via-the-admin-s-registered-mobile-number-otp-simulation-stored-in-backend-state-since-real-sms-is-not-available",
+      "featureTitle": "Implement Admin Login with username/ID and password authentication. Admins must be able to change/update their password. Password update must require verification via the admin's registered mobile number (OTP simulation stored in backend state, since real SMS is not available).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/Layout.tsx",
+        "frontend/src/hooks/useAuth.ts",
+        "frontend/src/pages/ChangePassword.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-user-applicant-login-with-username-id-and-password-regular-users-are-directed-to-the-complaint-submission-form-after-login",
+      "featureTitle": "Implement User/Applicant Login with username/ID and password. Regular users are directed to the complaint submission form after login.",
+      "files": [
+        "frontend/src/hooks/useAuth.ts",
+        "frontend/src/pages/Login.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-build-a-bilingual-hindi-english-complaint-submission-form-with-the-following-fields-name-father-s-name-address-mobile-number-complaint-detail-the-form-must-allow-attaching-a-pdf-or-jpg-file-or-capturing-a-photo-via-the-device-camera",
+      "featureTitle": "Build a bilingual (Hindi + English) complaint submission form with the following fields: Name / नाम, Father's Name / पिता का नाम, Address / पता, Mobile Number / मोबाइल नंबर, Complaint Detail / शिकायत विवरण. The form must allow attaching a PDF or JPG file or capturing a photo via the device camera.",
+      "files": [
+        "frontend/src/lib/i18n.ts",
+        "frontend/src/pages/SubmitComplaint.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-on-successful-complaint-submission-auto-generate-a-unique-complaint-number-store-it-in-the-backend-and-display-it-to-the-applicant-simulate-sending-an-sms-notification-to-the-applicant-s-mobile-number-by-storing-a-notification-record-in-the-backend-real-sms-gateway-is-not-available",
+      "featureTitle": "On successful complaint submission, auto-generate a unique complaint number, store it in the backend, and display it to the applicant. Simulate sending an SMS notification to the applicant's mobile number by storing a notification record in the backend (real SMS gateway is not available).",
+      "files": [
+        "frontend/src/pages/SubmitComplaint.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-an-officer-management-panel-for-admins-to-appoint-officers-by-entering-their-name-and-mobile-number-when-an-officer-is-assigned-to-a-complaint-store-the-assignment-in-the-backend-and-simulate-an-sms-notification-to-the-officer-s-mobile-number",
+      "featureTitle": "Implement an Officer Management panel for admins to appoint officers by entering their name and mobile number. When an officer is assigned to a complaint, store the assignment in the backend and simulate an SMS notification to the officer's mobile number.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/Layout.tsx",
         "frontend/src/pages/ComplaintDetail.tsx"
       ],
       "components": [
@@ -15,10 +127,102 @@
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
         "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
+        "authorization@4.0.0",
+        "camera@1.0.0"
       ],
       "testIds": [
-        "REQ-19"
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-complaint-status-management-with-three-stages-pending-in-progress-resolved-admins-must-be-able-to-update-the-status-enter-a-resolution-detail-and-record-a-hearing-date-and-time-for-each-status-transition",
+      "featureTitle": "Implement complaint status management with three stages: Pending → In Progress → Resolved. Admins must be able to update the status, enter a resolution detail, and record a hearing date and time for each status transition.",
+      "files": [
+        "frontend/src/pages/ComplaintDetail.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-an-attendance-hearing-record-section-on-the-complaint-detail-page-where-the-assigned-officer-s-attendance-details-date-and-time-of-hearing-are-recorded-and-stored",
+      "featureTitle": "Implement an attendance/hearing record section on the complaint detail page where the assigned officer's attendance details, date, and time of hearing are recorded and stored.",
+      "files": [
+        "frontend/src/pages/ComplaintDetail.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-8"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-generate-a-printable-downloadable-pdf-receipt-for-each-complaint-containing-complaint-number-all-applicant-details-name-father-name-address-mobile-complaint-detail-current-status-assigned-officer-details-hearing-date-time-and-a-reference-to-the-attached-file-the-receipt-must-be-available-from-the-complaint-detail-page",
+      "featureTitle": "Generate a printable/downloadable PDF receipt for each complaint containing: complaint number, all applicant details (name, father name, address, mobile), complaint detail, current status, assigned officer details, hearing date/time, and a reference to the attached file. The receipt must be available from the complaint detail page.",
+      "files": [
+        "frontend/src/lib/pdfGenerator.ts",
+        "frontend/src/pages/ComplaintDetail.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-9"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-apply-a-consistent-government-official-visual-theme-across-the-entire-application-deep-navy-and-saffron-gold-color-scheme-inspired-by-up-police-branding-formal-typography-clear-bilingual-labels-and-a-clean-table-based-admin-dashboard-layout",
+      "featureTitle": "Apply a consistent government/official visual theme across the entire application: deep navy and saffron/gold color scheme inspired by UP Police branding, formal typography, clear bilingual labels, and a clean table-based admin dashboard layout.",
+      "files": [
+        "frontend/src/components/Layout.tsx",
+        "frontend/src/index.css",
+        "frontend/src/pages/ComplaintDetail.tsx",
+        "frontend/src/pages/ComplaintsDashboard.tsx",
+        "frontend/src/pages/Login.tsx",
+        "frontend/src/pages/SubmitComplaint.tsx",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "camera@1.0.0"
+      ],
+      "testIds": [
+        "REQ-10"
       ],
       "confidence": "high"
     }

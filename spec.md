@@ -1,14 +1,18 @@
 # Specification
 
 ## Summary
-**Goal:** Add a status update feature with progress/resolution detail notes to the complaint management system, allowing admins to log status changes with remarks and view the full status history.
+**Goal:** Build a full-featured bilingual (Hindi + English) PS Sadar Bazar Application Box for UP Police, enabling complaint submission, officer management, status tracking, and PDF receipt generation with official UP Police branding.
 
 **Planned changes:**
-- Extend the complaint data model to include a `statusLog` array, where each entry stores `status`, `updatedAt`, `updatedBy`, and `details`
-- Add a new backend function `updateComplaintStatus(complaintNumber, newStatus, updatedBy, details)` that appends to `statusLog` and updates the complaint's current status
-- Update migration to add an empty `statusLog` array to all existing complaint records
-- On the Complaint Detail page (admin-only), add an "Update Status" form with a Status dropdown (Pending, In Progress, Resolved), an "Updated By" text field, and a "Details / Remarks" textarea
-- After form submission, refresh the complaint data and reflect the updated status badge
-- Below the form, display a status log history table (Status, Updated By, Date & Time, Details) ordered from newest to oldest, visible to admins only
+- Display the uploaded UP Police logo (logo.png) on the login page header and navigation bar alongside the title "PS Sadar Bazar Application Box - UP Police"
+- Implement Admin Login (ID + password) with a change password flow verified via simulated mobile OTP
+- Implement User/Applicant Login (ID + password) redirecting to the complaint submission form
+- Build a bilingual complaint submission form (Name, Father's Name, Address, Mobile Number, Complaint Detail) with PDF/JPG file attachment and camera capture support
+- Auto-generate a unique complaint number (e.g., PSSB-2024-0001) on submission, display it on a confirmation screen, and store a simulated SMS notification record
+- Build an Officer Management panel for admins to add officers (name + mobile) and assign them to complaints, with simulated SMS notification records
+- Implement complaint status management (Pending → In Progress → Resolved) with resolution details, hearing date/time, and a full status history log
+- Add an attendance/hearing record section on the complaint detail page to log officer attendance with date and time
+- Generate a downloadable/printable PDF receipt per complaint including all applicant details, complaint number, status, officer info, hearing date/time, attached file reference, and UP Police branding
+- Apply a government-official visual theme using deep navy, white, and saffron/gold colors with consistent bilingual labels throughout
 
-**User-visible outcome:** Admin users can update a complaint's status with progress or resolution notes, and view the full history of all status changes with details on the Complaint Detail page.
+**User-visible outcome:** Admins and applicants can log in, submit and manage complaints bilingually, track status updates, assign officers, record hearings, and download branded PDF receipts — all within a formal UP Police-themed interface.

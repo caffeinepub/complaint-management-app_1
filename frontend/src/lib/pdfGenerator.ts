@@ -1,328 +1,200 @@
-import { Complaint } from '../backend';
+import { Complaint, Officer } from '../backend';
 import { formatComplaintNumber, formatTimestamp, getStatusLabel } from './utils';
 
-export function generateComplaintPDF(complaint: Complaint, officerName?: string): void {
-  const complaintNumStr = formatComplaintNumber(complaint.complaintNumber);
-  const statusStr =
-    complaint.status === 'pending' ? 'pending' :
-    complaint.status === 'inProgress' ? 'inProgress' : 'resolved';
+export function generateReceiptPDF(complaint: Complaint, officer?: Officer | null) {
+  const complaintNum = formatComplaintNumber(complaint.complaintNumber);
+  const submittedOn = formatTimestamp(complaint.submissionTimestamp);
+  const statusLabel = getStatusLabel(String(complaint.status));
 
-  const printContent = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <title>Complaint Receipt - ${complaintNumStr}</title>
-      <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-          font-family: Arial, sans-serif;
-          font-size: 13px;
-          color: #1a1a2e;
-          background: #fff;
-          padding: 0;
-        }
-        .page {
-          width: 210mm;
-          min-height: 297mm;
-          margin: 0 auto;
-          padding: 20mm 18mm;
-          background: #fff;
-        }
-        .header {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          border-bottom: 3px solid #1a4a7a;
-          padding-bottom: 16px;
-          margin-bottom: 20px;
-        }
-        .logo-box {
-          width: 72px;
-          height: 72px;
-          flex-shrink: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .logo-box img {
-          width: 72px;
-          height: 72px;
-          object-fit: contain;
-        }
-        .header-text { flex: 1; }
-        .header-text h1 {
-          font-size: 20px;
-          font-weight: bold;
-          color: #1a4a7a;
-          letter-spacing: 0.5px;
-        }
-        .header-text h2 {
-          font-size: 14px;
-          font-weight: 600;
-          color: #2d6a9f;
-          margin-top: 2px;
-        }
-        .header-text p {
-          font-size: 11px;
-          color: #666;
-          margin-top: 2px;
-        }
-        .receipt-title {
-          text-align: center;
-          background: #1a4a7a;
-          color: #fff;
-          padding: 10px 0;
-          font-size: 15px;
-          font-weight: bold;
-          letter-spacing: 1px;
-          border-radius: 4px;
-          margin-bottom: 20px;
-        }
-        .complaint-number-box {
-          border: 2px solid #1a4a7a;
-          border-radius: 8px;
-          padding: 14px 20px;
-          margin-bottom: 20px;
-          background: #f0f6ff;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .complaint-number-box .label {
-          font-size: 11px;
-          color: #666;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        .complaint-number-box .number {
-          font-size: 22px;
-          font-weight: bold;
-          color: #1a4a7a;
-          font-family: monospace;
-          letter-spacing: 2px;
-        }
-        .status-badge {
-          display: inline-block;
-          padding: 4px 12px;
-          border-radius: 20px;
-          font-size: 11px;
-          font-weight: bold;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        .status-pending { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
-        .status-inProgress { background: #cce5ff; color: #004085; border: 1px solid #b8daff; }
-        .status-resolved { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .section {
-          margin-bottom: 18px;
-        }
-        .section-title {
-          font-size: 12px;
-          font-weight: bold;
-          color: #1a4a7a;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          border-bottom: 1px solid #dde4f0;
-          padding-bottom: 5px;
-          margin-bottom: 10px;
-        }
-        .field-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px 20px;
-        }
-        .field { margin-bottom: 6px; }
-        .field-label {
-          font-size: 10px;
-          color: #888;
-          text-transform: uppercase;
-          letter-spacing: 0.4px;
-          margin-bottom: 2px;
-        }
-        .field-value {
-          font-size: 13px;
-          color: #1a1a2e;
-          font-weight: 500;
-        }
-        .complaint-text {
-          background: #f8f9fa;
-          border: 1px solid #e0e0e0;
-          border-radius: 4px;
-          padding: 10px 12px;
-          font-size: 13px;
-          line-height: 1.6;
-          color: #333;
-          white-space: pre-wrap;
-        }
-        .officer-box {
-          background: #f0fff4;
-          border: 1px solid #b2dfdb;
-          border-radius: 6px;
-          padding: 10px 14px;
-        }
-        .footer {
-          margin-top: 30px;
-          border-top: 1px solid #dde4f0;
-          padding-top: 14px;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-        }
-        .footer-left { font-size: 11px; color: #888; }
-        .signature-box {
-          text-align: center;
-          font-size: 11px;
-          color: #555;
-        }
-        .signature-line {
-          width: 140px;
-          border-top: 1px solid #333;
-          margin: 30px auto 4px;
-        }
-        .watermark {
-          text-align: center;
-          font-size: 10px;
-          color: #bbb;
-          margin-top: 20px;
-          letter-spacing: 1px;
-        }
-        @media print {
-          body { padding: 0; }
-          .page { padding: 15mm 15mm; }
-          .no-print { display: none; }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="page">
-        <!-- Header -->
-        <div class="header">
-          <div class="logo-box">
-            <img src="${window.location.origin}/assets/generated/up-police-logo.dim_128x128.png" alt="UP Police Logo" />
-          </div>
-          <div class="header-text">
-            <h1>PS SADAR BAZAR APPLICATION BOX</h1>
-            <h2>Uttar Pradesh Police</h2>
-            <p>Complaint Receipt / शिकायत रसीद</p>
-          </div>
-        </div>
+  const hearingEntry = complaint.statusLog
+    .slice()
+    .reverse()
+    .find((s) => (s as any).hearingDate);
 
-        <!-- Receipt Title -->
-        <div class="receipt-title">COMPLAINT RECEIVING RECEIPT</div>
+  const attendanceRows = complaint.attendanceLog
+    .map(
+      (a) => `
+      <tr>
+        <td style="padding:6px 10px;border:1px solid #ddd;">${a.attendedBy}</td>
+        <td style="padding:6px 10px;border:1px solid #ddd;">${a.attendanceDate}</td>
+        <td style="padding:6px 10px;border:1px solid #ddd;">${a.attendanceTime}</td>
+        <td style="padding:6px 10px;border:1px solid #ddd;">${a.remarks ?? '-'}</td>
+      </tr>`
+    )
+    .join('');
 
-        <!-- Complaint Number -->
-        <div class="complaint-number-box">
-          <div>
-            <div class="label">Complaint Number / शिकायत संख्या</div>
-            <div class="number">${complaintNumStr}</div>
-          </div>
-          <div>
-            <span class="status-badge status-${statusStr}">${getStatusLabel(statusStr)}</span>
-          </div>
-        </div>
+  const statusRows = complaint.statusLog
+    .map(
+      (s) => `
+      <tr>
+        <td style="padding:6px 10px;border:1px solid #ddd;">${getStatusLabel(String(s.status))}</td>
+        <td style="padding:6px 10px;border:1px solid #ddd;">${formatTimestamp(s.updatedAt)}</td>
+        <td style="padding:6px 10px;border:1px solid #ddd;">${s.updatedBy}</td>
+        <td style="padding:6px 10px;border:1px solid #ddd;">${s.details}</td>
+      </tr>`
+    )
+    .join('');
 
-        <!-- Applicant Information -->
-        <div class="section">
-          <div class="section-title">Applicant Information / आवेदक की जानकारी</div>
-          <div class="field-grid">
-            <div class="field">
-              <div class="field-label">Applicant Name / आवेदक का नाम</div>
-              <div class="field-value">${complaint.applicantName}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Father's Name / पिता का नाम</div>
-              <div class="field-value">${complaint.fatherName}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Mobile Number / मोबाइल नंबर</div>
-              <div class="field-value">${complaint.mobileNumber}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Submission Date / दर्ज तिथि</div>
-              <div class="field-value">${formatTimestamp(complaint.submissionTimestamp)}</div>
-            </div>
-            <div class="field" style="grid-column: 1 / -1;">
-              <div class="field-label">Address / पता</div>
-              <div class="field-value">${complaint.address}</div>
-            </div>
-          </div>
-        </div>
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Complaint Receipt - ${complaintNum}</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #222; }
+    .header { background: #1a237e; color: white; padding: 20px; display: flex; align-items: center; gap: 20px; border-radius: 4px 4px 0 0; }
+    .header img { width: 80px; height: 80px; object-fit: contain; }
+    .header-text h1 { margin: 0; font-size: 20px; }
+    .header-text h2 { margin: 4px 0 0; font-size: 14px; font-weight: normal; opacity: 0.85; }
+    .receipt-title { background: #ff9800; color: #1a237e; text-align: center; padding: 10px; font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+    .complaint-number { background: #e8eaf6; border: 2px solid #1a237e; border-radius: 4px; padding: 12px 20px; margin: 16px 0; text-align: center; }
+    .complaint-number span { font-size: 22px; font-weight: bold; color: #1a237e; letter-spacing: 2px; }
+    .section { margin: 16px 0; }
+    .section-title { background: #1a237e; color: white; padding: 8px 14px; font-size: 14px; font-weight: bold; border-radius: 2px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid #ddd; }
+    .info-item { padding: 8px 14px; border-bottom: 1px solid #ddd; }
+    .info-item:nth-child(odd) { border-right: 1px solid #ddd; }
+    .info-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-value { font-size: 14px; font-weight: 500; margin-top: 2px; }
+    .complaint-text { padding: 12px 14px; border: 1px solid #ddd; background: #fafafa; line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #e8eaf6; padding: 8px 10px; border: 1px solid #ddd; text-align: left; font-weight: 600; color: #1a237e; }
+    .status-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-inProgress { background: #cce5ff; color: #004085; }
+    .status-resolved { background: #d4edda; color: #155724; }
+    .footer { margin-top: 30px; border-top: 2px solid #1a237e; padding-top: 16px; display: flex; justify-content: space-between; }
+    .signature-box { border: 1px solid #999; width: 180px; height: 60px; display: flex; align-items: flex-end; padding: 6px; font-size: 11px; color: #666; }
+    .watermark { text-align: center; color: #ccc; font-size: 11px; margin-top: 20px; }
+    @media print { body { padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="${window.location.origin}/logo.png" alt="UP Police Logo" onerror="this.style.display='none'"/>
+    <div class="header-text">
+      <h1>PS Sadar Bazar Application Box - UP Police</h1>
+      <h2>पीएस सदर बाजार एप्लीकेशन बॉक्स - उत्तर प्रदेश पुलिस</h2>
+    </div>
+  </div>
+  <div class="receipt-title">COMPLAINT RECEIPT / शिकायत रसीद</div>
 
-        <!-- Complaint Details -->
-        <div class="section">
-          <div class="section-title">Complaint Details / शिकायत विवरण</div>
-          <div class="complaint-text">${complaint.complaintDetail}</div>
-        </div>
+  <div class="complaint-number">
+    <div style="font-size:12px;color:#666;margin-bottom:4px;">Complaint Number / शिकायत संख्या</div>
+    <span>${complaintNum}</span>
+  </div>
 
-        <!-- Assigned Officer -->
-        <div class="section">
-          <div class="section-title">Assigned Officer / नियुक्त अधिकारी</div>
-          ${officerName
-            ? `<div class="officer-box">
-                <div class="field-label">Officer Name / अधिकारी का नाम</div>
-                <div class="field-value">${officerName}</div>
-               </div>`
-            : `<div class="field-value" style="color:#888; font-style:italic;">Not yet assigned / अभी नियुक्त नहीं</div>`
-          }
-        </div>
-
-        <!-- Attendance Log -->
-        ${complaint.attendanceLog && complaint.attendanceLog.length > 0 ? `
-        <div class="section">
-          <div class="section-title">Attendance Log / उपस्थिति लॉग</div>
-          <table style="width:100%; border-collapse:collapse; font-size:12px;">
-            <thead>
-              <tr style="background:#1a4a7a; color:#fff;">
-                <th style="padding:6px 8px; text-align:left;">Attended By</th>
-                <th style="padding:6px 8px; text-align:left;">Date</th>
-                <th style="padding:6px 8px; text-align:left;">Time</th>
-                <th style="padding:6px 8px; text-align:left;">Remarks</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${complaint.attendanceLog.map((log, i) => `
-                <tr style="background:${i % 2 === 0 ? '#f8f9fa' : '#fff'};">
-                  <td style="padding:5px 8px; border-bottom:1px solid #eee;">${log.attendedBy}</td>
-                  <td style="padding:5px 8px; border-bottom:1px solid #eee;">${log.attendanceDate}</td>
-                  <td style="padding:5px 8px; border-bottom:1px solid #eee;">${log.attendanceTime}</td>
-                  <td style="padding:5px 8px; border-bottom:1px solid #eee;">${log.remarks ?? '—'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-        ` : ''}
-
-        <!-- Footer -->
-        <div class="footer">
-          <div class="footer-left">
-            <div>Generated: ${new Date().toLocaleString('en-IN')}</div>
-            <div>Ref: ${complaint.complaintNumber.toString()}</div>
-          </div>
-          <div class="signature-box">
-            <div class="signature-line"></div>
-            <div>Authorized Signature</div>
-            <div style="font-size:10px; color:#888;">PS Sadar Bazar</div>
-          </div>
-        </div>
-
-        <div class="watermark">PS SADAR BAZAR APPLICATION BOX · UTTAR PRADESH POLICE</div>
+  <div class="section">
+    <div class="section-title">Applicant Information / आवेदक की जानकारी</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Name / नाम</div>
+        <div class="info-value">${complaint.applicantName}</div>
       </div>
+      <div class="info-item">
+        <div class="info-label">Father's Name / पिता का नाम</div>
+        <div class="info-value">${complaint.fatherName}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Mobile No. / मोबाइल नंबर</div>
+        <div class="info-value">${complaint.mobileNumber}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Submitted On / दर्ज तिथि</div>
+        <div class="info-value">${submittedOn}</div>
+      </div>
+      <div class="info-item" style="grid-column: span 2;">
+        <div class="info-label">Address / पता</div>
+        <div class="info-value">${complaint.address}</div>
+      </div>
+    </div>
+  </div>
 
-      <script>
-        window.onload = function() {
-          window.print();
-          setTimeout(function() { window.close(); }, 1000);
-        };
-      </script>
-    </body>
-    </html>
-  `;
+  <div class="section">
+    <div class="section-title">Complaint Detail / शिकायत विवरण</div>
+    <div class="complaint-text">${complaint.complaintDetail}</div>
+  </div>
 
-  const printWindow = window.open('', '_blank', 'width=900,height=700');
-  if (printWindow) {
-    printWindow.document.write(printContent);
-    printWindow.document.close();
+  <div class="section">
+    <div class="section-title">Status & Officer / स्थिति और अधिकारी</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Current Status / वर्तमान स्थिति</div>
+        <div class="info-value">
+          <span class="status-badge status-${String(complaint.status)}">${statusLabel}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Assigned Officer / नियुक्त अधिकारी</div>
+        <div class="info-value">${officer ? `${officer.name} (${officer.designation})` : 'Not Assigned / नियुक्त नहीं'}</div>
+      </div>
+      ${officer ? `
+      <div class="info-item">
+        <div class="info-label">Officer Mobile / अधिकारी मोबाइल</div>
+        <div class="info-value">${officer.mobileNumber}</div>
+      </div>` : ''}
+      <div class="info-item">
+        <div class="info-label">Attached File / संलग्न फ़ाइल</div>
+        <div class="info-value">${complaint.attachedFile ? 'File Attached / फ़ाइल संलग्न है' : 'No Attachment / कोई संलग्नक नहीं'}</div>
+      </div>
+    </div>
+  </div>
+
+  ${complaint.statusLog.length > 0 ? `
+  <div class="section">
+    <div class="section-title">Status History / स्थिति इतिहास</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Status / स्थिति</th>
+          <th>Date & Time / तिथि और समय</th>
+          <th>Updated By / अपडेट किया</th>
+          <th>Details / विवरण</th>
+        </tr>
+      </thead>
+      <tbody>${statusRows}</tbody>
+    </table>
+  </div>` : ''}
+
+  ${complaint.attendanceLog.length > 0 ? `
+  <div class="section">
+    <div class="section-title">Attendance Log / उपस्थिति लॉग</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Attended By / उपस्थित</th>
+          <th>Date / तिथि</th>
+          <th>Time / समय</th>
+          <th>Remarks / टिप्पणी</th>
+        </tr>
+      </thead>
+      <tbody>${attendanceRows}</tbody>
+    </table>
+  </div>` : ''}
+
+  <div class="footer">
+    <div>
+      <div class="signature-box">Applicant Signature / आवेदक हस्ताक्षर</div>
+    </div>
+    <div>
+      <div class="signature-box">Officer Signature / अधिकारी हस्ताक्षर</div>
+    </div>
+    <div>
+      <div class="signature-box">Station Seal / थाना मुहर</div>
+    </div>
+  </div>
+
+  <div class="watermark">
+    Generated on ${new Date().toLocaleString('en-IN')} | PS Sadar Bazar Application Box - UP Police
+  </div>
+
+  <script>window.onload = function() { window.print(); }</script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  if (win) {
+    win.document.write(html);
+    win.document.close();
   }
 }

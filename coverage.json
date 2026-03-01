@@ -1,55 +1,182 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-03-01T09:13:11.283Z",
+  "generatedAt": "2026-03-01T10:49:48.691Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 1,
+    "total": 10,
+    "implemented": 10,
     "items": [
       {
-        "id": "REQ-18",
-        "summary": "Extend the backend complaint data model to include a `statusLog` array on each complaint record. Each entry in `statusLog` should store: `status` (text: 'Pending', 'In Progress', or 'Resolved'), `updatedAt` (timestamp in nanoseconds), `updatedBy` (text, staff/admin name), and `details` (text, description of progress or resolution). Expose a new backend function `updateComplaintStatus(complaintNumber, newStatus, updatedBy, details)` that appends a new entry to the complaint's `statusLog` and updates the complaint's current `status` field. Update `migration.mo` to add an empty `statusLog` field to all existing complaint records.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-19",
-        "summary": "On the Complaint Detail page (admin view only), add an 'Update Status' section. This section should show a form with: a Status dropdown ('Pending', 'In Progress', 'Resolved'), an 'Updated By' text field (staff/admin name), and a 'Details / Remarks' textarea for recording progress or resolution notes. Include an 'Update Status' submit button that calls the `updateComplaintStatus` backend function and refreshes the complaint data. Below the form, display the full `statusLog` history in a table with columns: Status, Updated By, Date & Time, and Details — ordered from newest to oldest. This section should only be visible to admin-role users.",
+        "id": "REQ-1",
+        "summary": "Display the uploaded UP Police logo (logo.png) prominently on the Login page header and in the app navigation bar, alongside the title 'PS Sadar Bazar Application Box - UP Police'.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/Login.tsx",
+          "frontend/src/components/Layout.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/Login.tsx",
+          "frontend/src/components/Layout.tsx"
+        ]
+      },
+      {
+        "id": "REQ-10",
+        "summary": "Apply a consistent government/official visual theme across the entire application: deep navy and saffron/gold color scheme inspired by UP Police branding, formal typography, clear bilingual labels, and a clean table-based admin dashboard layout.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js",
+          "frontend/src/pages/Login.tsx",
+          "frontend/src/components/Layout.tsx",
+          "frontend/src/pages/SubmitComplaint.tsx",
+          "frontend/src/pages/ComplaintsDashboard.tsx",
+          "frontend/src/pages/ComplaintDetail.tsx",
+          "frontend/src/pages/OfficersManagement.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js",
+          "frontend/src/pages/Login.tsx",
+          "frontend/src/components/Layout.tsx",
+          "frontend/src/pages/SubmitComplaint.tsx",
+          "frontend/src/pages/ComplaintsDashboard.tsx",
+          "frontend/src/pages/ComplaintDetail.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Implement Admin Login with username/ID and password authentication. Admins must be able to change/update their password. Password update must require verification via the admin's registered mobile number (OTP simulation stored in backend state, since real SMS is not available).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useAuth.ts",
+          "frontend/src/pages/ChangePassword.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/Layout.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useAuth.ts",
+          "frontend/src/pages/ChangePassword.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/Layout.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Implement User/Applicant Login with username/ID and password. Regular users are directed to the complaint submission form after login.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/Login.tsx",
+          "frontend/src/hooks/useAuth.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/Login.tsx",
+          "frontend/src/hooks/useAuth.ts"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Build a bilingual (Hindi + English) complaint submission form with the following fields: Name / नाम, Father's Name / पिता का नाम, Address / पता, Mobile Number / मोबाइल नंबर, Complaint Detail / शिकायत विवरण. The form must allow attaching a PDF or JPG file or capturing a photo via the device camera.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/SubmitComplaint.tsx",
+          "frontend/src/lib/i18n.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/SubmitComplaint.tsx",
+          "frontend/src/lib/i18n.ts"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "On successful complaint submission, auto-generate a unique complaint number, store it in the backend, and display it to the applicant. Simulate sending an SMS notification to the applicant's mobile number by storing a notification record in the backend (real SMS gateway is not available).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/SubmitComplaint.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/SubmitComplaint.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Implement an Officer Management panel for admins to appoint officers by entering their name and mobile number. When an officer is assigned to a complaint, store the assignment in the backend and simulate an SMS notification to the officer's mobile number.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/OfficersManagement.tsx",
+          "frontend/src/pages/ComplaintDetail.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/Layout.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/ComplaintDetail.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/Layout.tsx"
+        ]
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Implement complaint status management with three stages: Pending → In Progress → Resolved. Admins must be able to update the status, enter a resolution detail, and record a hearing date and time for each status transition.",
+        "status": "implemented",
+        "plannedFiles": [
           "frontend/src/pages/ComplaintDetail.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/ComplaintDetail.tsx"
+        ]
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Implement an attendance/hearing record section on the complaint detail page where the assigned officer's attendance details, date, and time of hearing are recorded and stored.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/ComplaintDetail.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/ComplaintDetail.tsx"
+        ]
+      },
+      {
+        "id": "REQ-9",
+        "summary": "Generate a printable/downloadable PDF receipt for each complaint containing: complaint number, all applicant details (name, father name, address, mobile), complaint detail, current status, assigned officer details, hearing date/time, and a reference to the attached file. The receipt must be available from the complaint detail page.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/pdfGenerator.ts",
+          "frontend/src/pages/ComplaintDetail.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/lib/pdfGenerator.ts",
           "frontend/src/pages/ComplaintDetail.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/authorization/MixinAuthorization.mo",
-    "backend/authorization/access-control.mo",
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useActor.ts",
+    "frontend/src/App.tsx",
+    "frontend/src/camera/useCamera.ts",
+    "frontend/src/components/Layout.tsx",
+    "frontend/src/components/ProtectedRoute.tsx",
+    "frontend/src/hooks/useAuth.ts",
     "frontend/src/hooks/useQueries.ts",
+    "frontend/src/index.css",
+    "frontend/src/lib/i18n.ts",
+    "frontend/src/lib/pdfGenerator.ts",
+    "frontend/src/lib/utils.ts",
+    "frontend/src/pages/ChangePassword.tsx",
     "frontend/src/pages/ComplaintDetail.tsx",
-    "frontend/src/utils/urlParams.ts",
+    "frontend/src/pages/ComplaintsDashboard.tsx",
+    "frontend/src/pages/Login.tsx",
+    "frontend/src/pages/SubmitComplaint.tsx",
+    "frontend/tailwind.config.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

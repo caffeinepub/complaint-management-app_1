@@ -1,110 +1,266 @@
 export type Language = 'en' | 'hi';
 
-export interface Translations {
-  pageTitle: string;
-  pageSubtitle: string;
-  langToggle: string;
-  applicantName: string;
-  applicantNamePlaceholder: string;
-  fatherName: string;
-  fatherNamePlaceholder: string;
-  address: string;
-  addressPlaceholder: string;
-  mobileNumber: string;
-  mobileNumberPlaceholder: string;
-  complaintDetail: string;
-  complaintDetailPlaceholder: string;
-  attachFile: string;
-  attachFileHint: string;
-  submitButton: string;
-  submitting: string;
-  successTitle: string;
-  successSubtitle: string;
-  complaintNumberLabel: string;
-  notificationSent: string;
-  notificationDetail: string;
-  submitAnother: string;
-  viewAll: string;
-  errors: {
-    applicantName: string;
-    fatherName: string;
-    address: string;
-    mobileNumber: string;
-    mobileNumberInvalid: string;
-    complaintDetail: string;
-    complaintDetailShort: string;
-  };
-}
-
-export const translations: Record<Language, Translations> = {
+export const translations = {
   en: {
-    pageTitle: 'Submit a Complaint',
-    pageSubtitle: 'Fill in the details below to register your complaint with PS Sadar Bazar',
-    langToggle: 'हिंदी में देखें',
-    applicantName: 'Applicant Name',
-    applicantNamePlaceholder: 'Enter full name',
+    // App
+    appName: 'PS Sadar Bazar Application Box',
+    appSubtitle: 'UP Police',
+    appFullTitle: 'PS Sadar Bazar Application Box - UP Police',
+
+    // Login
+    login: 'Login',
+    logout: 'Logout',
+    userId: 'User ID',
+    password: 'Password',
+    loginBtn: 'Login',
+    loginError: 'Invalid ID or password',
+    adminLogin: 'Admin Login',
+    userLogin: 'User / Applicant Login',
+    demoCredentials: 'Demo Credentials',
+
+    // Navigation
+    dashboard: 'Dashboard',
+    submitComplaint: 'Submit Complaint',
+    officers: 'Officers',
+    changePassword: 'Change Password',
+    myComplaints: 'My Complaints',
+
+    // Complaint Form
+    complaintForm: 'Complaint Registration Form',
+    name: 'Name',
     fatherName: "Father's Name",
-    fatherNamePlaceholder: "Enter father's full name",
     address: 'Address',
-    addressPlaceholder: 'Enter complete address',
-    mobileNumber: 'Mobile Number',
-    mobileNumberPlaceholder: 'Enter 10-digit mobile number',
-    complaintDetail: 'Complaint Details',
-    complaintDetailPlaceholder: 'Describe your complaint in detail...',
-    attachFile: 'Attach File (PDF or JPG)',
-    attachFileHint: 'Supported formats: PDF, JPG. Max size: 10MB',
-    submitButton: 'Submit Complaint',
+    mobileNo: 'Mobile No.',
+    complaintDetail: 'Complaint Detail',
+    attachFile: 'Attach File (PDF/JPG)',
+    capturePhoto: 'Capture Photo',
+    cameraPreview: 'Camera Preview',
+    takePicture: 'Take Picture',
+    retake: 'Retake',
+    usePhoto: 'Use Photo',
+    cameraNotSupported: 'Camera not supported',
+    cameraAccessDenied: 'Camera access denied',
+    submit: 'Submit Complaint',
     submitting: 'Submitting...',
-    successTitle: 'Complaint Submitted Successfully',
-    successSubtitle: 'Your complaint has been registered. Please save your complaint number for future reference.',
-    complaintNumberLabel: 'Your Complaint Number',
-    notificationSent: 'Notification Sent',
-    notificationDetail: 'A confirmation message has been recorded in the system. An officer will be assigned to your complaint shortly.',
+    language: 'Language',
+
+    // Validation
+    nameRequired: 'Name is required',
+    fatherNameRequired: "Father's name is required",
+    addressRequired: 'Address is required',
+    mobileRequired: 'Mobile number is required',
+    mobileInvalid: 'Enter valid 10-digit mobile number',
+    complaintRequired: 'Complaint detail is required',
+
+    // Success
+    successTitle: 'Complaint Registered Successfully!',
+    complaintNumber: 'Complaint Number',
+    smsSent: 'An SMS notification has been sent to your mobile number',
     submitAnother: 'Submit Another Complaint',
-    viewAll: 'View All Complaints',
-    errors: {
-      applicantName: 'Applicant name is required',
-      fatherName: "Father's name is required",
-      address: 'Address is required',
-      mobileNumber: 'Mobile number is required',
-      mobileNumberInvalid: 'Enter a valid mobile number',
-      complaintDetail: 'Complaint detail is required',
-      complaintDetailShort: 'Please provide more detail (at least 20 characters)',
-    },
+    backToLogin: 'Back to Login',
+
+    // Dashboard
+    allComplaints: 'All Complaints',
+    totalComplaints: 'Total Complaints',
+    pending: 'Pending',
+    inProgress: 'In Progress',
+    resolved: 'Resolved',
+    filterByStatus: 'Filter by Status',
+    all: 'All',
+    viewDetails: 'View Details',
+    applicantName: 'Applicant Name',
+    submittedOn: 'Submitted On',
+    status: 'Status',
+    assignedOfficer: 'Assigned Officer',
+    actions: 'Actions',
+
+    // Complaint Detail
+    complaintDetails: 'Complaint Details',
+    applicantInfo: 'Applicant Information',
+    complaintInfo: 'Complaint Information',
+    officerInfo: 'Officer Information',
+    assignOfficer: 'Assign Officer',
+    assign: 'Assign',
+    noOfficerAssigned: 'No officer assigned',
+    updateStatus: 'Update Status',
+    newStatus: 'New Status',
+    updatedBy: 'Updated By',
+    resolutionDetails: 'Resolution Details',
+    hearingDate: 'Hearing Date',
+    hearingTime: 'Hearing Time',
+    update: 'Update',
+    statusHistory: 'Status History',
+    recordAttendance: 'Record Attendance',
+    attendedBy: 'Attended By',
+    attendanceDate: 'Attendance Date',
+    attendanceTime: 'Attendance Time',
+    remarks: 'Remarks',
+    record: 'Record',
+    attendanceLog: 'Attendance Log',
+    notificationLog: 'Notification Log',
+    downloadReceipt: 'Download Receipt / PDF',
+    backToDashboard: 'Back to Dashboard',
+    attachedFile: 'Attached File',
+    noAttachment: 'No attachment',
+
+    // Officers
+    officersManagement: 'Officers Management',
+    addOfficer: 'Add Officer',
+    officerId: 'Officer ID',
+    officerName: 'Officer Name',
+    designation: 'Designation',
+    mobileNumber: 'Mobile Number',
+    adding: 'Adding...',
+    noOfficers: 'No officers registered yet',
+
+    // Change Password
+    changePasswordTitle: 'Change Password',
+    currentPassword: 'Current Password',
+    newPassword: 'New Password',
+    confirmPassword: 'Confirm New Password',
+    registeredMobile: 'Registered Mobile Number',
+    sendOtp: 'Send OTP',
+    otpSent: 'OTP sent to your mobile (Demo OTP shown below)',
+    enterOtp: 'Enter OTP',
+    verifyOtp: 'Verify OTP',
+    otpVerified: 'OTP Verified Successfully',
+    passwordChanged: 'Password changed successfully',
+    passwordMismatch: 'Passwords do not match',
+    passwordTooShort: 'Password must be at least 6 characters',
+    changePasswordBtn: 'Change Password',
+    changing: 'Changing...',
   },
   hi: {
-    pageTitle: 'शिकायत दर्ज करें',
-    pageSubtitle: 'पीएस सदर बाजार में अपनी शिकायत दर्ज करने के लिए नीचे विवरण भरें',
-    langToggle: 'View in English',
-    applicantName: 'आवेदक का नाम',
-    applicantNamePlaceholder: 'पूरा नाम दर्ज करें',
+    // App
+    appName: 'पीएस सदर बाजार एप्लीकेशन बॉक्स',
+    appSubtitle: 'उत्तर प्रदेश पुलिस',
+    appFullTitle: 'पीएस सदर बाजार एप्लीकेशन बॉक्स - यूपी पुलिस',
+
+    // Login
+    login: 'लॉगिन',
+    logout: 'लॉगआउट',
+    userId: 'यूजर आईडी',
+    password: 'पासवर्ड',
+    loginBtn: 'लॉगिन करें',
+    loginError: 'अमान्य आईडी या पासवर्ड',
+    adminLogin: 'एडमिन लॉगिन',
+    userLogin: 'उपयोगकर्ता / आवेदक लॉगिन',
+    demoCredentials: 'डेमो क्रेडेंशियल',
+
+    // Navigation
+    dashboard: 'डैशबोर्ड',
+    submitComplaint: 'शिकायत दर्ज करें',
+    officers: 'अधिकारी',
+    changePassword: 'पासवर्ड बदलें',
+    myComplaints: 'मेरी शिकायतें',
+
+    // Complaint Form
+    complaintForm: 'शिकायत पंजीकरण फॉर्म',
+    name: 'नाम',
     fatherName: 'पिता का नाम',
-    fatherNamePlaceholder: 'पिता का पूरा नाम दर्ज करें',
     address: 'पता',
-    addressPlaceholder: 'पूरा पता दर्ज करें',
-    mobileNumber: 'मोबाइल नंबर',
-    mobileNumberPlaceholder: '10 अंकों का मोबाइल नंबर दर्ज करें',
+    mobileNo: 'मोबाइल नंबर',
     complaintDetail: 'शिकायत विवरण',
-    complaintDetailPlaceholder: 'अपनी शिकायत का विस्तार से वर्णन करें...',
-    attachFile: 'फ़ाइल संलग्न करें (PDF या JPG)',
-    attachFileHint: 'समर्थित प्रारूप: PDF, JPG। अधिकतम आकार: 10MB',
-    submitButton: 'शिकायत दर्ज करें',
+    attachFile: 'फ़ाइल संलग्न करें (PDF/JPG)',
+    capturePhoto: 'फ़ोटो कैप्चर करें',
+    cameraPreview: 'कैमरा पूर्वावलोकन',
+    takePicture: 'तस्वीर लें',
+    retake: 'फिर से लें',
+    usePhoto: 'फ़ोटो का उपयोग करें',
+    cameraNotSupported: 'कैमरा समर्थित नहीं है',
+    cameraAccessDenied: 'कैमरा एक्सेस अस्वीकृत',
+    submit: 'शिकायत दर्ज करें',
     submitting: 'दर्ज हो रहा है...',
-    successTitle: 'शिकायत सफलतापूर्वक दर्ज की गई',
-    successSubtitle: 'आपकी शिकायत दर्ज कर ली गई है। भविष्य के संदर्भ के लिए अपना शिकायत नंबर सुरक्षित रखें।',
-    complaintNumberLabel: 'आपका शिकायत नंबर',
-    notificationSent: 'सूचना भेजी गई',
-    notificationDetail: 'सिस्टम में एक पुष्टिकरण संदेश दर्ज किया गया है। जल्द ही एक अधिकारी आपकी शिकायत के लिए नियुक्त किया जाएगा।',
+    language: 'भाषा',
+
+    // Validation
+    nameRequired: 'नाम आवश्यक है',
+    fatherNameRequired: 'पिता का नाम आवश्यक है',
+    addressRequired: 'पता आवश्यक है',
+    mobileRequired: 'मोबाइल नंबर आवश्यक है',
+    mobileInvalid: '10 अंकों का वैध मोबाइल नंबर दर्ज करें',
+    complaintRequired: 'शिकायत विवरण आवश्यक है',
+
+    // Success
+    successTitle: 'शिकायत सफलतापूर्वक दर्ज की गई!',
+    complaintNumber: 'शिकायत संख्या',
+    smsSent: 'आपके मोबाइल नंबर पर एक SMS सूचना भेजी गई है',
     submitAnother: 'एक और शिकायत दर्ज करें',
-    viewAll: 'सभी शिकायतें देखें',
-    errors: {
-      applicantName: 'आवेदक का नाम आवश्यक है',
-      fatherName: 'पिता का नाम आवश्यक है',
-      address: 'पता आवश्यक है',
-      mobileNumber: 'मोबाइल नंबर आवश्यक है',
-      mobileNumberInvalid: 'एक वैध मोबाइल नंबर दर्ज करें',
-      complaintDetail: 'शिकायत विवरण आवश्यक है',
-      complaintDetailShort: 'कृपया अधिक विवरण प्रदान करें (कम से कम 20 अक्षर)',
-    },
+    backToLogin: 'लॉगिन पर वापस जाएं',
+
+    // Dashboard
+    allComplaints: 'सभी शिकायतें',
+    totalComplaints: 'कुल शिकायतें',
+    pending: 'लंबित',
+    inProgress: 'प्रगति में',
+    resolved: 'हल किया गया',
+    filterByStatus: 'स्थिति के अनुसार फ़िल्टर करें',
+    all: 'सभी',
+    viewDetails: 'विवरण देखें',
+    applicantName: 'आवेदक का नाम',
+    submittedOn: 'दर्ज तिथि',
+    status: 'स्थिति',
+    assignedOfficer: 'नियुक्त अधिकारी',
+    actions: 'कार्रवाई',
+
+    // Complaint Detail
+    complaintDetails: 'शिकायत विवरण',
+    applicantInfo: 'आवेदक की जानकारी',
+    complaintInfo: 'शिकायत की जानकारी',
+    officerInfo: 'अधिकारी की जानकारी',
+    assignOfficer: 'अधिकारी नियुक्त करें',
+    assign: 'नियुक्त करें',
+    noOfficerAssigned: 'कोई अधिकारी नियुक्त नहीं',
+    updateStatus: 'स्थिति अपडेट करें',
+    newStatus: 'नई स्थिति',
+    updatedBy: 'अपडेट किया गया',
+    resolutionDetails: 'समाधान विवरण',
+    hearingDate: 'सुनवाई तिथि',
+    hearingTime: 'सुनवाई समय',
+    update: 'अपडेट करें',
+    statusHistory: 'स्थिति इतिहास',
+    recordAttendance: 'उपस्थिति दर्ज करें',
+    attendedBy: 'उपस्थित व्यक्ति',
+    attendanceDate: 'उपस्थिति तिथि',
+    attendanceTime: 'उपस्थिति समय',
+    remarks: 'टिप्पणी',
+    record: 'दर्ज करें',
+    attendanceLog: 'उपस्थिति लॉग',
+    notificationLog: 'सूचना लॉग',
+    downloadReceipt: 'रसीद डाउनलोड करें / PDF',
+    backToDashboard: 'डैशबोर्ड पर वापस जाएं',
+    attachedFile: 'संलग्न फ़ाइल',
+    noAttachment: 'कोई संलग्नक नहीं',
+
+    // Officers
+    officersManagement: 'अधिकारी प्रबंधन',
+    addOfficer: 'अधिकारी जोड़ें',
+    officerId: 'अधिकारी आईडी',
+    officerName: 'अधिकारी का नाम',
+    designation: 'पदनाम',
+    mobileNumber: 'मोबाइल नंबर',
+    adding: 'जोड़ा जा रहा है...',
+    noOfficers: 'अभी तक कोई अधिकारी पंजीकृत नहीं',
+
+    // Change Password
+    changePasswordTitle: 'पासवर्ड बदलें',
+    currentPassword: 'वर्तमान पासवर्ड',
+    newPassword: 'नया पासवर्ड',
+    confirmPassword: 'नया पासवर्ड पुष्टि करें',
+    registeredMobile: 'पंजीकृत मोबाइल नंबर',
+    sendOtp: 'OTP भेजें',
+    otpSent: 'आपके मोबाइल पर OTP भेजा गया (डेमो OTP नीचे दिखाया गया है)',
+    enterOtp: 'OTP दर्ज करें',
+    verifyOtp: 'OTP सत्यापित करें',
+    otpVerified: 'OTP सफलतापूर्वक सत्यापित',
+    passwordChanged: 'पासवर्ड सफलतापूर्वक बदला गया',
+    passwordMismatch: 'पासवर्ड मेल नहीं खाते',
+    passwordTooShort: 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
+    changePasswordBtn: 'पासवर्ड बदलें',
+    changing: 'बदला जा रहा है...',
   },
 };
+
+export function t(lang: Language, key: keyof typeof translations['en']): string {
+  return translations[lang][key] || translations['en'][key] || key;
+}

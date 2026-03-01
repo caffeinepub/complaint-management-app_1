@@ -1,65 +1,224 @@
 {
   "kind": "build_request",
-  "title": "Add status update with resolution/progress detail notes",
+  "title": "PS Sadar Bazar Application Box – Full Feature Build with UP Police Logo",
   "projectName": "PS Sadar Bazar Application Box",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-18",
-      "text": "Extend the backend complaint data model to include a `statusLog` array on each complaint record. Each entry in `statusLog` should store: `status` (text: 'Pending', 'In Progress', or 'Resolved'), `updatedAt` (timestamp in nanoseconds), `updatedBy` (text, staff/admin name), and `details` (text, description of progress or resolution). Expose a new backend function `updateComplaintStatus(complaintNumber, newStatus, updatedBy, details)` that appends a new entry to the complaint's `statusLog` and updates the complaint's current `status` field. Update `migration.mo` to add an empty `statusLog` field to all existing complaint records.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-recent"
-        ],
-        "quotes": [
-          "add status update detail in app",
-          "In Progress और Resolved आप्सन काम कर सके",
-          "allow recording resolution/progress details when a complaint status is changed to 'In Progress' or 'Resolved'"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The complaint data model includes a `statusLog` array field.",
-        "Each `statusLog` entry has `status`, `updatedAt`, `updatedBy`, and `details` fields.",
-        "`updateComplaintStatus` appends a new log entry and updates the complaint's current status.",
-        "Migration adds an empty `statusLog` array to all pre-existing complaint records.",
-        "Calling `updateComplaintStatus` with status 'In Progress' or 'Resolved' along with detail text persists correctly."
-      ]
-    },
-    {
-      "id": "REQ-19",
-      "text": "On the Complaint Detail page (admin view only), add an 'Update Status' section. This section should show a form with: a Status dropdown ('Pending', 'In Progress', 'Resolved'), an 'Updated By' text field (staff/admin name), and a 'Details / Remarks' textarea for recording progress or resolution notes. Include an 'Update Status' submit button that calls the `updateComplaintStatus` backend function and refreshes the complaint data. Below the form, display the full `statusLog` history in a table with columns: Status, Updated By, Date & Time, and Details — ordered from newest to oldest. This section should only be visible to admin-role users.",
+      "id": "REQ-1",
+      "text": "Display the uploaded UP Police logo (logo.png) prominently on the Login page header and in the app navigation bar, alongside the title 'PS Sadar Bazar Application Box - UP Police'.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-latest"
         ],
         "quotes": [
-          "add status update detail in app",
-          "In Progress और Resolved आप्सन काम कर सके",
-          "allow recording resolution/progress details when a complaint status is changed to 'In Progress' or 'Resolved'"
+          "UP Police Logo",
+          "ADD NAME -PS SADAR BAZAR APPLICATION BOX AND ADD LOGO UP POLICE"
         ]
       },
       "acceptanceCriteria": [
-        "The 'Update Status' section is visible only to admin-role users on the Complaint Detail page.",
-        "The form includes a Status dropdown with options: Pending, In Progress, Resolved.",
-        "The form includes an 'Updated By' text field and a 'Details / Remarks' textarea.",
-        "Submitting the form calls `updateComplaintStatus` with the correct arguments.",
-        "After a successful update, the complaint's current status badge on the page reflects the new status.",
-        "The status log history table displays all past status entries with Status, Updated By, Date & Time, and Details columns.",
-        "The status log entries are ordered from newest to oldest."
+        "UP Police logo is visible on the login page above the login form.",
+        "UP Police logo is visible in the navigation/app bar on all authenticated pages.",
+        "Title 'PS Sadar Bazar Application Box - UP Police' appears alongside the logo."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement Admin Login with username/ID and password authentication. Admins must be able to change/update their password. Password update must require verification via the admin's registered mobile number (OTP simulation stored in backend state, since real SMS is not available).",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Admin Login (ID + Password) and also change/update password and verified from mobile number"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin can log in with a valid ID and password.",
+        "Admin can navigate to a 'Change Password' screen.",
+        "Change password flow requires entering the registered mobile number for verification.",
+        "Backend stores and validates the mobile OTP (simulated) before allowing password update.",
+        "New password is saved and old credentials no longer work after update."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement User/Applicant Login with username/ID and password. Regular users are directed to the complaint submission form after login.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "User/Applicant Login (ID + Password)"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A user/applicant can log in with valid ID and password.",
+        "Successful login redirects the user to the complaint submission form.",
+        "Invalid credentials show an error message in both Hindi and English."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Build a bilingual (Hindi + English) complaint submission form with the following fields: Name / नाम, Father's Name / पिता का नाम, Address / पता, Mobile Number / मोबाइल नंबर, Complaint Detail / शिकायत विवरण. The form must allow attaching a PDF or JPG file or capturing a photo via the device camera.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "शिकायत फॉर्म (Hindi + English)",
+          "PDF/JPG/Camera फाइल अटैच"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All form fields display labels in both Hindi and English.",
+        "File input accepts PDF and JPG file types.",
+        "Camera capture option is available for mobile devices (via input[capture=camera]).",
+        "Validation errors are shown in both languages.",
+        "Form cannot be submitted without required fields filled."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "On successful complaint submission, auto-generate a unique complaint number, store it in the backend, and display it to the applicant. Simulate sending an SMS notification to the applicant's mobile number by storing a notification record in the backend (real SMS gateway is not available).",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "शिकायत नंबर जनरेट",
+          "मोबाइल पर संदेश"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each submitted complaint receives a unique, formatted complaint number (e.g., PSSB-2024-0001).",
+        "Complaint number is shown on the confirmation screen after submission.",
+        "A notification record is created in the backend referencing the applicant's mobile number and complaint number.",
+        "The confirmation screen shows a message indicating that an SMS has been sent to the applicant's mobile."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Implement an Officer Management panel for admins to appoint officers by entering their name and mobile number. When an officer is assigned to a complaint, store the assignment in the backend and simulate an SMS notification to the officer's mobile number.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "अधिकारी नियुक्त करना (नाम + मोबाइल)"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin can add a new officer with name and mobile number.",
+        "Admin can assign an officer to a specific complaint from the complaint detail page.",
+        "Backend stores the officer assignment against the complaint.",
+        "A notification record is created referencing the officer's mobile and the assigned complaint number."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Implement complaint status management with three stages: Pending → In Progress → Resolved. Admins must be able to update the status, enter a resolution detail, and record a hearing date and time for each status transition.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Status बदलना: Pending → In Progress → Resolved",
+          "Resolution Detail दर्ज करना",
+          "सुनवाई का दिनांक और समय"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Complaint detail page shows current status with a dropdown or button group to change it.",
+        "Admin can enter resolution details text when updating status.",
+        "Admin can set a hearing date and time when updating status.",
+        "All status changes are logged with timestamp in the backend status log.",
+        "Status history is displayed on the complaint detail page."
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Implement an attendance/hearing record section on the complaint detail page where the assigned officer's attendance details, date, and time of hearing are recorded and stored.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "who attend to applicant fill our detail date and time"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin or officer can log attendance details including officer name, date, and time.",
+        "Attendance records are stored in the backend linked to the complaint.",
+        "All attendance entries are displayed in a list on the complaint detail page."
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Generate a printable/downloadable PDF receipt for each complaint containing: complaint number, all applicant details (name, father name, address, mobile), complaint detail, current status, assigned officer details, hearing date/time, and a reference to the attached file. The receipt must be available from the complaint detail page.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "PDF रसीद",
+          "शिकायत नंबर",
+          "सभी विवरण",
+          "अटैच फाइल",
+          "generate recving pdf with attached file with complaint number and details"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A 'Download Receipt / PDF रसीद' button is present on the complaint detail page.",
+        "Generated PDF includes complaint number, all applicant fields, complaint detail, status, officer info, and hearing date/time.",
+        "PDF includes a note or reference indicating the name of any attached file.",
+        "PDF is styled with the UP Police branding (logo and app title).",
+        "PDF can be opened or downloaded directly from the browser."
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "text": "Apply a consistent government/official visual theme across the entire application: deep navy and saffron/gold color scheme inspired by UP Police branding, formal typography, clear bilingual labels, and a clean table-based admin dashboard layout.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "PS सदर बाजार एप्लीकेशन बॉक्स - UP Police"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Color palette uses deep navy, white, and saffron/gold tones throughout.",
+        "All pages use consistent font styling appropriate for a government application.",
+        "Login page, forms, and admin dashboard all follow the same visual theme.",
+        "Bilingual labels are consistently formatted on all user-facing screens."
       ]
     }
   ],
   "constraints": [
-    "Admin-only: the Update Status form and status log history must not be shown to non-admin (user-role) users.",
-    "Do not modify any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
-    "Preserve all existing complaint fields and backend functions; only extend, do not break existing behavior."
+    "Real SMS sending is not available; simulate SMS by storing notification records in the backend.",
+    "Real OTP delivery is not available; simulate mobile verification by storing OTP records in the backend state.",
+    "The UP Police logo uploaded by the user (logo.png) must be used as the official logo asset — do not substitute or generate a replacement.",
+    "All user-facing text must appear in both Hindi and English.",
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui."
   ],
   "nonGoals": [
-    "Sending external SMS/email notifications on status change.",
-    "Allowing regular (non-admin) users to update complaint status.",
-    "Changing the existing attendance recording feature."
+    "Real SMS gateway integration (e.g., Twilio, MSG91).",
+    "Real OTP delivery via telecom network.",
+    "Internet Identity / blockchain-based authentication.",
+    "Multi-backend or microservices architecture.",
+    "Mobile app (React Native / Flutter).",
+    "Email notification integration."
   ],
   "imageRequirements": {
     "required": [],

@@ -7,14 +7,13 @@ import Array "mo:core/Array";
 import List "mo:core/List";
 import Order "mo:core/Order";
 import Principal "mo:core/Principal";
+import Iter "mo:core/Iter";
 
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
 actor {
   include MixinStorage();
 
@@ -28,6 +27,9 @@ actor {
   let userProfiles = Map.empty<Principal, UserProfile>();
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can get their profile");
+    };
     userProfiles.get(caller);
   };
 
@@ -188,10 +190,10 @@ actor {
     complaints.add(complaintNumber, Complaint.addNotification(updatedComplaint, "Officer assigned successfully: " # officerId));
   };
 
-  // Anyone can view a complaint
+  // Anyone can view a complaint by its number
   public query ({ caller }) func getComplaint(complaintNumber : Nat) : async Complaint {
     switch (complaints.get(complaintNumber)) {
-      case (null) { Runtime.trap("No submission found for guest") };
+      case (null) { Runtime.trap("Complaint not found") };
       case (?complaint) { complaint };
     };
   };

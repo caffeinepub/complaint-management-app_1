@@ -1,308 +1,181 @@
 import { useState } from 'react';
-import { Link } from '@tanstack/react-router';
-import { ComplaintStatus } from '../backend';
+import { useNavigate } from '@tanstack/react-router';
 import { useListComplaints, useListOfficers } from '../hooks/useQueries';
+import { ComplaintStatus } from '../backend';
 import { formatComplaintNumber, formatTimestamp, getStatusLabel, getStatusColor } from '../lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  LayoutDashboard,
-  Eye,
-  FileText,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Users,
-  RefreshCw,
-  Plus,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-
-type FilterValue = 'all' | 'pending' | 'inProgress' | 'resolved';
-
-const statusOptions: { value: FilterValue; label: string }[] = [
-  { value: 'all', label: 'All Complaints' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'inProgress', label: 'In Progress' },
-  { value: 'resolved', label: 'Resolved' },
-];
-
-function toComplaintStatus(filter: FilterValue): ComplaintStatus | null {
-  if (filter === 'all') return null;
-  if (filter === 'pending') return ComplaintStatus.pending;
-  if (filter === 'inProgress') return ComplaintStatus.inProgress;
-  if (filter === 'resolved') return ComplaintStatus.resolved;
-  return null;
-}
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FileText, Users, Clock, CheckCircle, AlertCircle, Eye } from 'lucide-react';
 
 export default function ComplaintsDashboard() {
-  const [statusFilter, setStatusFilter] = useState<FilterValue>('all');
+  const [statusFilter, setStatusFilter] = useState<ComplaintStatus | 'all'>('all');
+  const navigate = useNavigate();
 
-  const { data: complaints, isLoading, isError, refetch, isFetching } = useListComplaints(
-    toComplaintStatus(statusFilter)
+  const { data: complaints, isLoading, isError } = useListComplaints(
+    statusFilter === 'all' ? null : statusFilter
   );
   const { data: officers } = useListOfficers();
 
-  const officerMap = new Map(officers?.map((o) => [o.officerId, o]) ?? []);
-
-  const stats = {
-    total: complaints?.length ?? 0,
-    pending: complaints?.filter((c) => c.status === ComplaintStatus.pending).length ?? 0,
-    inProgress: complaints?.filter((c) => c.status === ComplaintStatus.inProgress).length ?? 0,
-    resolved: complaints?.filter((c) => c.status === ComplaintStatus.resolved).length ?? 0,
+  const getOfficerName = (officerId?: string) => {
+    if (!officerId) return null;
+    return officers?.find((o) => o.officerId === officerId)?.name || officerId;
   };
 
+  const allComplaints = useListComplaints(null);
+  const total = allComplaints.data?.length || 0;
+  const pendingCount = allComplaints.data?.filter((c) => String(c.status) === 'pending').length || 0;
+  const inProgressCount = allComplaints.data?.filter((c) => String(c.status) === 'inProgress').length || 0;
+  const resolvedCount = allComplaints.data?.filter((c) => String(c.status) === 'resolved').length || 0;
+
   return (
-    <div className="animate-fade-in">
+    <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <LayoutDashboard size={20} className="text-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-serif font-bold text-foreground">Complaints Dashboard</h1>
-            <p className="text-muted-foreground text-sm">Manage and track all registered complaints</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            disabled={isFetching}
-          >
-            <RefreshCw size={14} className={cn('mr-1.5', isFetching && 'animate-spin')} />
-            Refresh
-          </Button>
-          <Link to="/submit-complaint">
-            <Button size="sm">
-              <Plus size={14} className="mr-1.5" />
-              New Complaint
-            </Button>
-          </Link>
+      <div className="govt-header rounded-lg px-6 py-4 flex items-center gap-3">
+        <img src="/logo.png" alt="UP Police" className="h-10 w-10 object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+        <div>
+          <h1 className="text-white font-bold text-xl">Complaints Dashboard / शिकायत डैशबोर्ड</h1>
+          <p className="text-saffron-400 text-sm">PS Sadar Bazar Application Box - UP Police</p>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard
-          label="Total"
-          value={stats.total}
-          icon={<FileText size={18} className="text-primary" />}
-          color="bg-primary/10"
-        />
-        <StatCard
-          label="Pending"
-          value={stats.pending}
-          icon={<Clock size={18} className="text-warning" />}
-          color="bg-warning/10"
-        />
-        <StatCard
-          label="In Progress"
-          value={stats.inProgress}
-          icon={<AlertCircle size={18} className="text-primary" />}
-          color="bg-primary/10"
-        />
-        <StatCard
-          label="Resolved"
-          value={stats.resolved}
-          icon={<CheckCircle2 size={18} className="text-success" />}
-          color="bg-success/10"
-        />
-      </div>
-
-      {/* Complaints Table */}
-      <Card className="shadow-card">
-        <CardHeader className="pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <FileText size={16} className="text-primary" />
-              Complaint Records
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Select
-                value={statusFilter}
-                onValueChange={(v) => setStatusFilter(v as FilterValue)}
-              >
-                <SelectTrigger className="w-44 h-8 text-sm">
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {statusOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Card className="shadow-card border-0 border-l-4 border-l-navy-700">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <FileText size={24} className="text-navy-700" />
+              <div>
+                <p className="text-xs text-gray-500">Total / कुल</p>
+                <p className="text-2xl font-bold text-navy-800">{total}</p>
+              </div>
             </div>
-          </div>
-        </CardHeader>
+          </CardContent>
+        </Card>
+        <Card className="shadow-card border-0 border-l-4 border-l-yellow-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <Clock size={24} className="text-yellow-600" />
+              <div>
+                <p className="text-xs text-gray-500">Pending / लंबित</p>
+                <p className="text-2xl font-bold text-yellow-700">{pendingCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-card border-0 border-l-4 border-l-blue-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <AlertCircle size={24} className="text-blue-600" />
+              <div>
+                <p className="text-xs text-gray-500">In Progress / प्रगति में</p>
+                <p className="text-2xl font-bold text-blue-700">{inProgressCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-card border-0 border-l-4 border-l-green-500">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <CheckCircle size={24} className="text-green-600" />
+              <div>
+                <p className="text-xs text-gray-500">Resolved / हल</p>
+                <p className="text-2xl font-bold text-green-700">{resolvedCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filter & Table */}
+      <Card className="shadow-card border-0">
         <CardContent className="p-0">
+          <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50 rounded-t-lg">
+            <h2 className="font-semibold text-navy-800">All Complaints / सभी शिकायतें</h2>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+              <SelectTrigger className="w-44 text-sm">
+                <SelectValue placeholder="Filter by Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All / सभी</SelectItem>
+                <SelectItem value={ComplaintStatus.pending}>Pending / लंबित</SelectItem>
+                <SelectItem value={ComplaintStatus.inProgress}>In Progress / प्रगति में</SelectItem>
+                <SelectItem value={ComplaintStatus.resolved}>Resolved / हल</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {isLoading ? (
-            <div className="p-6 space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full rounded-md" />
-              ))}
+            <div className="p-4 space-y-3">
+              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 w-full" />)}
             </div>
           ) : isError ? (
-            <div className="p-12 text-center">
-              <AlertCircle size={40} className="mx-auto mb-3 text-destructive/50" />
-              <p className="text-muted-foreground">Failed to load complaints. Please try again.</p>
-              <Button variant="outline" size="sm" className="mt-3" onClick={() => refetch()}>
-                Retry
-              </Button>
+            <div className="p-8 text-center text-red-600">
+              <AlertCircle size={32} className="mx-auto mb-2" />
+              <p>Failed to load complaints / शिकायतें लोड करने में विफल</p>
             </div>
-          ) : !complaints || complaints.length === 0 ? (
-            <div className="p-12 text-center">
-              <FileText size={40} className="mx-auto mb-3 text-muted-foreground/40" />
-              <p className="font-medium text-foreground mb-1">No complaints found</p>
-              <p className="text-sm text-muted-foreground mb-4">
-                {statusFilter !== 'all'
-                  ? `No ${getStatusLabel(statusFilter)} complaints at this time.`
-                  : 'No complaints have been submitted yet.'}
-              </p>
-              <Link to="/submit-complaint">
-                <Button size="sm">
-                  <Plus size={14} className="mr-1.5" />
-                  Submit First Complaint
-                </Button>
-              </Link>
+          ) : !complaints?.length ? (
+            <div className="p-8 text-center text-gray-500">
+              <FileText size={40} className="mx-auto mb-2 opacity-30" />
+              <p>No complaints found / कोई शिकायत नहीं मिली</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/40 hover:bg-muted/40">
-                    <TableHead className="font-semibold text-foreground">Complaint No.</TableHead>
-                    <TableHead className="font-semibold text-foreground">Applicant</TableHead>
-                    <TableHead className="font-semibold text-foreground hidden sm:table-cell">Mobile</TableHead>
-                    <TableHead className="font-semibold text-foreground">Status</TableHead>
-                    <TableHead className="font-semibold text-foreground hidden md:table-cell">
-                      <span className="flex items-center gap-1">
-                        <Users size={13} />
-                        Assigned Officer
-                      </span>
-                    </TableHead>
-                    <TableHead className="font-semibold text-foreground hidden lg:table-cell">Date</TableHead>
-                    <TableHead className="font-semibold text-foreground text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {complaints.map((complaint) => {
-                    const officer = complaint.assignedOfficerId
-                      ? officerMap.get(complaint.assignedOfficerId)
-                      : null;
-                    return (
-                      <TableRow key={complaint.complaintNumber.toString()} className="hover:bg-accent/30">
-                        <TableCell className="font-mono font-semibold text-primary text-sm">
-                          {formatComplaintNumber(complaint.complaintNumber)}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium text-sm text-foreground">{complaint.applicantName}</p>
-                            <p className="text-xs text-muted-foreground">{complaint.fatherName}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm hidden sm:table-cell text-muted-foreground">
-                          {complaint.mobileNumber}
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            className={cn(
-                              'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border',
-                              getStatusColor(
-                                complaint.status === ComplaintStatus.pending
-                                  ? 'pending'
-                                  : complaint.status === ComplaintStatus.inProgress
-                                  ? 'inProgress'
-                                  : 'resolved'
-                              )
-                            )}
-                          >
-                            {getStatusLabel(
-                              complaint.status === ComplaintStatus.pending
-                                ? 'pending'
-                                : complaint.status === ComplaintStatus.inProgress
-                                ? 'inProgress'
-                                : 'resolved'
-                            )}
-                          </span>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell text-sm">
-                          {officer ? (
-                            <div>
-                              <p className="font-medium text-foreground">{officer.name}</p>
-                              <p className="text-xs text-muted-foreground">{officer.designation}</p>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground text-xs italic">Not assigned</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell text-xs text-muted-foreground">
-                          {formatTimestamp(complaint.submissionTimestamp)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Link to="/complaint/$complaintNumber" params={{ complaintNumber: complaint.complaintNumber.toString() }}>
-                            <Button variant="outline" size="sm" className="h-7 text-xs gap-1">
-                              <Eye size={12} />
-                              View
-                            </Button>
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-navy-50 text-navy-800">
+                    <th className="text-left px-4 py-3 font-semibold">Complaint No.</th>
+                    <th className="text-left px-4 py-3 font-semibold">Applicant / आवेदक</th>
+                    <th className="text-left px-4 py-3 font-semibold hidden sm:table-cell">Mobile</th>
+                    <th className="text-left px-4 py-3 font-semibold hidden md:table-cell">Submitted / दर्ज तिथि</th>
+                    <th className="text-left px-4 py-3 font-semibold">Status / स्थिति</th>
+                    <th className="text-left px-4 py-3 font-semibold hidden lg:table-cell">Officer / अधिकारी</th>
+                    <th className="text-left px-4 py-3 font-semibold">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {complaints.map((complaint, idx) => (
+                    <tr key={complaint.complaintNumber.toString()} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      <td className="px-4 py-3 font-mono font-semibold text-navy-700 text-xs">
+                        {formatComplaintNumber(complaint.complaintNumber)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-gray-900">{complaint.applicantName}</div>
+                        <div className="text-xs text-gray-500">{complaint.address.slice(0, 30)}{complaint.address.length > 30 ? '...' : ''}</div>
+                      </td>
+                      <td className="px-4 py-3 hidden sm:table-cell text-gray-600">{complaint.mobileNumber}</td>
+                      <td className="px-4 py-3 hidden md:table-cell text-gray-500 text-xs">
+                        {formatTimestamp(complaint.submissionTimestamp)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(String(complaint.status))}`}>
+                          {getStatusLabel(String(complaint.status))}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 hidden lg:table-cell text-gray-600 text-xs">
+                        {getOfficerName(complaint.assignedOfficerId) || <span className="text-gray-400 italic">Not assigned</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate({ to: `/complaint/${complaint.complaintNumber}` })}
+                          className="text-navy-700 border-navy-300 hover:bg-navy-50 flex items-center gap-1"
+                        >
+                          <Eye size={13} />
+                          View
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  icon,
-  color,
-}: {
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  color: string;
-}) {
-  return (
-    <Card className="shadow-card">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
-          <div className={cn('w-8 h-8 rounded-md flex items-center justify-center', color)}>
-            {icon}
-          </div>
-        </div>
-        <p className="text-2xl font-bold text-foreground">{value}</p>
-      </CardContent>
-    </Card>
   );
 }
