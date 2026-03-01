@@ -1,0 +1,21 @@
+{
+  "backend/main.mo": "Motoko actor implementing a complaint management system with CRUD operations for complaints and officers, including status tracking, officer assignment, notification logging, and blob file attachment support.",
+  "feature_evidence.json": "Feature evidence report mapping two logo-related features (generating an app logo and displaying it in the navigation bar) to their associated files, components, and test IDs.",
+  "frontend-file-summaries.txt": "JSON document containing one-sentence summaries of each frontend source file, serving as a reference index for the project's frontend codebase.",
+  "frontend/index.css": "Base Tailwind CSS entry file defining OKLCH CSS custom properties for light and dark theme color tokens used throughout the application.",
+  "frontend/index.html": "Minimal HTML shell for the React SPA, mounting the app into a root div and loading the main TypeScript entry point.",
+  "frontend/src/App.tsx": "Defines the TanStack Router configuration with routes for dashboard, submit-complaint, complaint detail, and officers pages, all wrapped in a shared Layout with a Sonner toaster.",
+  "frontend/src/components/Layout.tsx": "Persistent top navigation bar component displaying the app logo and brand name as a home link, desktop and mobile nav links with active state highlighting, and a footer.",
+  "frontend/src/hooks/useActor.ts": "React hook that creates and caches an ICP backend actor using the current Internet Identity, invalidating dependent queries whenever the actor changes.",
+  "frontend/src/hooks/useInternetIdentity.ts": "Provides an InternetIdentityProvider and useInternetIdentity hook for managing DFINITY AuthClient login, logout, and identity state across the React app.",
+  "frontend/src/hooks/useQueries.ts": "Defines React Query hooks for complaints and officers, including listing, fetching, submitting, assigning, and adding via actor calls.",
+  "frontend/src/index.css": "Global CSS file that imports fonts, sets up Tailwind layers, and defines light/dark theme CSS variables using OKLCH color values.",
+  "frontend/src/lib/utils.ts": "Utility functions for class merging, formatting complaint numbers and timestamps, and mapping complaint status to labels and Tailwind color classes.",
+  "frontend/src/main.tsx": "Application entry point that renders the React app wrapped in QueryClientProvider and InternetIdentityProvider.",
+  "frontend/src/pages/ComplaintDetail.tsx": "Page component that displays full details of a single complaint, supports officer assignment, and allows downloading attached files.",
+  "frontend/src/pages/ComplaintsDashboard.tsx": "Dashboard page that lists all complaints with status filter, summary stat cards, and links to individual complaint details and submission.",
+  "frontend/src/pages/OfficersManagement.tsx": "Page for registering new officers via a validated form and displaying the existing officers list in a table.",
+  "frontend/src/pages/SubmitComplaint.tsx": "React page component that renders a complaint submission form with fields for applicant details, complaint description, and PDF/JPG file upload. On submission it calls the `useSubmitComplaint` mutation and displays the generated complaint number in a success alert.",
+  "frontend/tailwind.config.js": "Tailwind CSS configuration that enables dark mode, sets up custom OKLCH-based color tokens (primary, secondary, nav, sidebar, chart, etc.), custom fonts, border radii, box shadows, and includes the typography, container-queries, and animate plugins.",
+  "project_state.json": "JSON file tracking overall project state (version 5) for a Complaint Management App, listing the summary, architectural notes, known issues, image requirements, and all existing implemented features."
+}

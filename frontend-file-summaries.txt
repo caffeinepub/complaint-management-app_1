@@ -1,0 +1,12 @@
+{
+  "frontend/src/index.css": "Global styles with a professional government/civic services OKLCH color palette (deep teal primary), custom font imports (Inter + Merriweather), semantic color tokens for success/warning/nav, and utility classes for status colors.",
+  "frontend/tailwind.config.js": "Extended Tailwind config with Inter/Merriweather font families, custom color tokens (success, warning, nav), card shadow variants, and fade-in animation keyframes.",
+  "frontend/src/App.tsx": "Main app with TanStack Router setup defining routes for dashboard, submit-complaint, complaint detail, and officers pages, all wrapped in a Layout with Sonner toaster.",
+  "frontend/src/components/Layout.tsx": "Persistent top navigation bar displaying the app logo (`app-logo.dim_128x128.png`) and app name \"Complaint Management System\" as a linked brand unit, with nav links (Dashboard, Submit Complaint, Officers), active state highlighting, mobile hamburger menu with brand display, and footer with attribution.",
+  "frontend/src/lib/utils.ts": "Utility functions for class merging (cn), complaint number formatting (CMP-YYYY-NNNN), nanosecond timestamp formatting, and status label/color helpers.",
+  "frontend/src/hooks/useQueries.ts": "All React Query hooks for backend operations: listComplaints, getComplaint, submitComplaint, assignOfficer, listOfficers, and addOfficer with proper cache invalidation.",
+  "frontend/src/pages/SubmitComplaint.tsx": "Complaint submission form with all required fields, PDF/JPG file upload with progress tracking, client-side validation, and a success screen displaying the generated complaint number. Fixed by removing the redundant `LayoutDashboardIcon` helper function and inlining the `LayoutDashboard` icon directly in the JSX.",
+  "frontend/src/pages/ComplaintsDashboard.tsx": "Dashboard listing all complaints in a table with status filter, stat cards (total/pending/in-progress/resolved), officer name resolution, and View Details navigation.",
+  "frontend/src/pages/ComplaintDetail.tsx": "Full complaint detail view showing all applicant fields, complaint description, file download, officer assignment dropdown with confirm button, and notification log timeline.",
+  "frontend/src/pages/OfficersManagement.tsx": "Officers management page with a sticky Add Officer form (ID, name, mobile, designation with validation) and a responsive table listing all registered officers."
+}

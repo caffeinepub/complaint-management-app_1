@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Complaint Management App that stores applicant details (name, father name, address, mobile no, complaint detail), allows appointing an officer to handle the complaint, supports attaching PDF/JPG files, auto-generates a complaint number, and sends notifications to both the applicant and assigned officer.",
+  "architectural_notes": [
+    "File uploads (PDF/JPG) require server-side storage; use cloud storage (e.g., Firebase Storage or S3) or local disk storage",
+    "Messaging/notification system needed for SMS or in-app alerts to applicant and officer"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Formal government civic services emblem-style logo mark with a shield or seal motif in deep teal and white with subtle gold accent, transparent background (app-logo.dim_128x128.png)",
+  "existing_features": [
+    {
+      "id": "feature-build-a-complaint-submission-form-page-with-fields-for-applicant-name-father-name-address-mobile-number-complaint-detail-textarea-and-a-file-upload-input-accepting-pdf-and-jpg-files-only-on-submission-call-the-submitcomplaint-backend-function-and-display-the-generated-complaint-number-prominently-in-a-confirmation-message",
+      "title": "Build a complaint submission form page with fields for: Applicant Name, Father Name, Address, Mobile Number, Complaint Detail (textarea), and a file upload input accepting PDF and JPG files only. On submission, call the submitComplaint backend function and display the generated complaint number prominently in a confirmation message.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-complaint-management-dashboard-page-that-lists-all-complaints-in-a-table-with-columns-complaint-number-applicant-name-mobile-status-assigned-officer-submission-date-and-an-actions-column-the-table-should-support-filtering-by-status-each-row-should-have-a-view-details-action-to-open-the-full-complaint-record",
+      "title": "Build a complaint management dashboard page that lists all complaints in a table with columns: Complaint Number, Applicant Name, Mobile, Status, Assigned Officer, Submission Date, and an Actions column. The table should support filtering by status. Each row should have a 'View Details' action to open the full complaint record.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-complaint-detail-page-that-shows-all-information-for-a-single-complaint-all-applicant-fields-complaint-detail-attached-file-download-link-assigned-officer-status-notification-log-include-an-assign-officer-control-that-shows-a-dropdown-of-available-officers-and-a-confirm-button-that-calls-the-assignofficer-backend-function",
+      "title": "Build a complaint detail page that shows all information for a single complaint (all applicant fields, complaint detail, attached file download link, assigned officer, status, notification log). Include an 'Assign Officer' control that shows a dropdown of available officers and a confirm button that calls the assignOfficer backend function.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-an-officers-management-page-that-lists-all-registered-officers-and-includes-an-add-officer-form-with-fields-name-mobile-number-designation-on-submission-call-the-addofficer-backend-function-to-persist-the-officer",
+      "title": "Build an Officers Management page that lists all registered officers and includes an 'Add Officer' form with fields: Name, Mobile Number, Designation. On submission, call the addOfficer backend function to persist the officer.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-clean-professional-government-civic-services-visual-theme-across-the-entire-application-use-a-formal-color-palette-e-g-deep-teal-or-slate-blue-with-white-and-light-grey-backgrounds-clear-typography-with-strong-hierarchy-card-based-layout-for-forms-and-details-and-a-persistent-top-navigation-bar-with-links-to-submit-complaint-complaints-dashboard-and-officers",
+      "title": "Apply a clean, professional government/civic services visual theme across the entire application. Use a formal color palette (e.g., deep teal or slate blue with white and light grey backgrounds), clear typography with strong hierarchy, card-based layout for forms and details, and a persistent top navigation bar with links to: Submit Complaint, Complaints Dashboard, and Officers.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-generate-a-professional-government-civic-services-app-logo-image-for-the-complaint-management-app-the-logo-should-be-a-clean-formal-emblem-style-icon-suitable-for-a-top-navigation-bar-rendered-in-the-application-s-deep-teal-slate-blue-color-palette-on-a-transparent-background",
+      "title": "Generate a professional government/civic services app logo image for the Complaint Management App. The logo should be a clean, formal emblem-style icon suitable for a top navigation bar, rendered in the application's deep teal/slate blue color palette on a transparent background.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-layout-tsx-navigation-bar-to-display-the-generated-app-logo-image-alongside-the-app-name-complaint-management-system-as-a-branded-header-unit-on-the-left-side-of-the-top-navigation-bar-the-logo-image-should-render-at-an-appropriate-small-size-e-g-36x36px-and-the-app-name-should-appear-in-a-prominent-bold-font-consistent-with-the-existing-government-civic-theme-both-the-logo-and-name-should-together-act-as-a-home-link-navigating-to-the-dashboard",
+      "title": "Update the Layout.tsx navigation bar to display the generated app logo image alongside the app name 'Complaint Management System' as a branded header unit on the left side of the top navigation bar. The logo image should render at an appropriate small size (e.g., 36x36px) and the app name should appear in a prominent, bold font consistent with the existing government/civic theme. Both the logo and name should together act as a home link navigating to the dashboard.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Applicant data entry form: name, father name, address, mobile number, complaint detail",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Appoint an officer to attend/handle a specific complaint",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Attach PDF or JPG file to the complaint application",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Auto-generate a unique complaint number for each submitted complaint",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Send notification/message to applicant and appointed officer upon complaint submission or officer assignment",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Create a backend data model and storage for complaints with the following fields: auto-generated unique complaint number, applicant name, father name, address, mobile number, complaint detail, status (pending/in-progress/resolved), assigned officer ID, attached file (PDF or JPG as binary blob with filename and MIME type), submission timestamp, and notification log entries.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Implement backend functions: submitComplaint (creates a new complaint record and returns the generated complaint number), assignOfficer (assigns an officer to a complaint by complaint number), getComplaint (fetch a complaint by its number), listComplaints (list all complaints with optional status filter), listOfficers (return available officers), and addOfficer (add an officer with name, mobile number, and designation).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Implement an in-app notification/message system in the backend. When a complaint is submitted, generate a notification message for the applicant confirming their complaint number. When an officer is assigned, generate a notification message for both the applicant (informing them of the assigned officer) and the officer (informing them of the new complaint assignment). Store these messages in the complaint record's notification log.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Add app logo and app name display to the application (e.g., in the top navigation bar)",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Complaint Management App",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

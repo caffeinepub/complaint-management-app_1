@@ -1,0 +1,41 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-generate-a-professional-government-civic-services-app-logo-image-for-the-complaint-management-app-the-logo-should-be-a-clean-formal-emblem-style-icon-suitable-for-a-top-navigation-bar-rendered-in-the-application-s-deep-teal-slate-blue-color-palette-on-a-transparent-background",
+      "featureTitle": "Generate a professional government/civic services app logo image for the Complaint Management App. The logo should be a clean, formal emblem-style icon suitable for a top navigation bar, rendered in the application's deep teal/slate blue color palette on a transparent background.",
+      "files": [],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-9"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-layout-tsx-navigation-bar-to-display-the-generated-app-logo-image-alongside-the-app-name-complaint-management-system-as-a-branded-header-unit-on-the-left-side-of-the-top-navigation-bar-the-logo-image-should-render-at-an-appropriate-small-size-e-g-36x36px-and-the-app-name-should-appear-in-a-prominent-bold-font-consistent-with-the-existing-government-civic-theme-both-the-logo-and-name-should-together-act-as-a-home-link-navigating-to-the-dashboard",
+      "featureTitle": "Update the Layout.tsx navigation bar to display the generated app logo image alongside the app name 'Complaint Management System' as a branded header unit on the left side of the top navigation bar. The logo image should render at an appropriate small size (e.g., 36x36px) and the app name should appear in a prominent, bold font consistent with the existing government/civic theme. Both the logo and name should together act as a home link navigating to the dashboard.",
+      "files": [
+        "frontend/src/components/Layout.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-10"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

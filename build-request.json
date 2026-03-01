@@ -1,0 +1,61 @@
+{
+  "kind": "build_request",
+  "title": "Add App Logo and App Name to Navigation Bar",
+  "projectName": "Complaint Management App",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-9",
+      "text": "Generate a professional government/civic services app logo image for the Complaint Management App. The logo should be a clean, formal emblem-style icon suitable for a top navigation bar, rendered in the application's deep teal/slate blue color palette on a transparent background.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "CAN YOU ADD APP LOGO AND APP NAME"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A logo image file is generated and placed in frontend/public/assets/generated/",
+        "The logo is visually appropriate for a civic/government complaint management context",
+        "The logo uses the application's established teal/slate blue color palette"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "text": "Update the Layout.tsx navigation bar to display the generated app logo image alongside the app name 'Complaint Management System' as a branded header unit on the left side of the top navigation bar. The logo image should render at an appropriate small size (e.g., 36x36px) and the app name should appear in a prominent, bold font consistent with the existing government/civic theme. Both the logo and name should together act as a home link navigating to the dashboard.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "CAN YOU ADD APP LOGO AND APP NAME"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The top navigation bar displays the app logo image to the left of the app name text",
+        "The app name 'Complaint Management System' is displayed in bold, styled consistently with the civic theme",
+        "The logo and app name together link to the dashboard (/) route",
+        "The layout remains responsive and the logo/name display correctly on both desktop and mobile viewports",
+        "The existing navigation links (Submit Complaint, Complaints Dashboard, Officers) remain intact and functional"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify any files under frontend/src/hooks/ or frontend/src/components/ui/",
+    "Do not alter the existing navigation link structure or routing configuration"
+  ],
+  "nonGoals": [
+    "Changing the overall color theme or layout of the application",
+    "Adding authentication or login functionality",
+    "Modifying any backend logic"
+  ],
+  "imageRequirements": {
+    "required": [
+      "Formal government civic services emblem-style logo mark with a shield or seal motif in deep teal and white with subtle gold accent, transparent background (app-logo.dim_128x128.png)"
+    ],
+    "edits": []
+  }
+}

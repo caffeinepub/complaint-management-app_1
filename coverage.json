@@ -1,0 +1,50 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-03-01T07:59:14.960Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 2,
+    "implemented": 2,
+    "items": [
+      {
+        "id": "REQ-10",
+        "summary": "Update the Layout.tsx navigation bar to display the generated app logo image alongside the app name 'Complaint Management System' as a branded header unit on the left side of the top navigation bar. The logo image should render at an appropriate small size (e.g., 36x36px) and the app name should appear in a prominent, bold font consistent with the existing government/civic theme. Both the logo and name should together act as a home link navigating to the dashboard.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/Layout.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/Layout.tsx"
+        ]
+      },
+      {
+        "id": "REQ-9",
+        "summary": "Generate a professional government/civic services app logo image for the Complaint Management App. The logo should be a clean, formal emblem-style icon suitable for a top navigation bar, rendered in the application's deep teal/slate blue color palette on a transparent background.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/public/assets/generated/app-logo.dim_128x128.png"
+        ],
+        "matchedFiles": [
+          "frontend/public/assets/generated/app-logo.dim_128x128.png"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "build-template/README.md",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/public/assets/generated/app-logo.dim_128x128.png",
+    "frontend/src/components/Layout.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}
